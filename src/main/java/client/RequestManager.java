@@ -6,6 +6,7 @@ import common.network.CommandResult;
 import server.PersonCollection;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.Socket;
 
 /**
@@ -31,6 +32,7 @@ public class RequestManager {
      */
     public PersonCollection sendCollection(Request<?> request) throws IOException, ClassNotFoundException {
         Socket socket1 = new Socket(Configuration.IP, port);
+
         OutputStream send = socket1.getOutputStream();
         ObjectOutputStream objectSend = new ObjectOutputStream(send);
         objectSend.writeObject(request);

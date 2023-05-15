@@ -7,6 +7,7 @@ import server.PersonCollection;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
+import java.net.ConnectException;
 import java.util.Scanner;
 
 import static server.Parser.convertToJavaObject;
@@ -30,36 +31,39 @@ public class MainClient {
                 System.out.println("Не получается спарсить порт.");
             }
         }
+        try {
+            RequestManager requestManager = new RequestManager(port);
+            Scanner scanner = new Scanner(System.in);
+            CommandManager commandManager = new CommandManager(requestManager);
+            System.out.println("Клиент запущен! Порт: " + port);
+            PersonCollection collection = new PersonCollection();
 
-        RequestManager requestManager = new RequestManager(port);
-        Scanner scanner = new Scanner(System.in);
-        CommandManager commandManager = new CommandManager(requestManager);
-        System.out.println("Клиент запущен! Порт: " + port);
-        PersonCollection collection = new PersonCollection();
-
-        if (args.length == 2) {
-            File file = new File(args[1]);
-            if (file.exists() && !file.isDirectory()) {
-                collection.setCollection(convertToJavaObject(file).getCollection());
-                Request<PersonCollection> request = new Request<>(null, collection, collection);
-                PersonCollection result = requestManager.sendCollection(request);
-                result.getCollection();
-                collection.setCollection(result.getCollection());
-            } else {
-                Console console = new Console();
-                console.fileRead();
+            if (args.length == 2) {
+                File file = new File(args[1]);
+                if (file.exists() && !file.isDirectory()) {
+                    collection.setCollection(convertToJavaObject(file).getCollection());
+                    Request<PersonCollection> request = new Request<>(null, collection, collection);
+                    PersonCollection result = requestManager.sendCollection(request);
+                    result.getCollection();
+                    collection.setCollection(result.getCollection());
+                } else {
+                    Console console = new Console();
+                    console.fileRead();
+                }
             }
+            String input;
+            do {
+                System.out.println("Введите команду: ");
+                if (!scanner.hasNextLine()) return;
+                input = scanner.nextLine();
+                try {
+                    commandManager.existCommand(input);
+                } catch (Exception e) {
+                    System.out.println("Ошибка");
+                }
+            } while (!input.equals("exit"));
+        } catch (ConnectException e) {
+            System.out.println("Вы не подключены к серверу");
         }
-        String input;
-        do {
-            System.out.println("Введите команду: ");
-            if (!scanner.hasNextLine()) return;
-            input = scanner.nextLine();
-            try {
-                commandManager.existCommand(input);
-            } catch (Exception e) {
-                System.out.println("Ошибка");
-            }
-        } while (!input.equals("exit"));
     }
 }
