@@ -1,5 +1,7 @@
 package common.data;
 
+import java.io.Serial;
+
 /**
  * Enum with colors and codes for it
  */
