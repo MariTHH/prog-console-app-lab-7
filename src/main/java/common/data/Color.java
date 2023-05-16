@@ -11,6 +11,8 @@ public enum Color {
     YELLOW(5),
     ORANGE(6),
     WHITE(7);
+    @Serial
+    private static final long serialVersionUID = 0xABAB;
     private final int code;
 
     Color(int code) {

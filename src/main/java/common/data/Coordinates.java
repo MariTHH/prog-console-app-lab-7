@@ -2,6 +2,7 @@ package common.data;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -9,6 +10,8 @@ import java.io.Serializable;
  */
 @XmlType(propOrder = {"x", "y"})
 public class Coordinates implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 0xB0BA;
     private long x;
     private int y;
 

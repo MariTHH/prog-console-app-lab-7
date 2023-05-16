@@ -6,6 +6,7 @@ import server.GenerationId;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
@@ -14,6 +15,8 @@ import java.time.ZonedDateTime;
  */
 @XmlRootElement
 public class Person implements Comparable<Person>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 0xDADA;
     private int id;
     @XmlElement(
             name = "name",
@@ -76,6 +79,7 @@ public class Person implements Comparable<Person>, Serializable {
     public int getId() {
         return this.id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -161,6 +165,7 @@ public class Person implements Comparable<Person>, Serializable {
     public int compareTo(Person personName) {
         return name.compareTo(personName.name);
     }
+
     public void update(Person person) {
         this.name = person.name;
         this.coordinates = person.coordinates;
