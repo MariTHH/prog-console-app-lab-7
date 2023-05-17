@@ -2,6 +2,7 @@ package client;
 
 import common.data.Color;
 import common.data.Country;
+import java.io.Console;
 
 import java.util.*;
 
@@ -9,6 +10,26 @@ import java.util.*;
  * The class is responsible for what the user enters
  */
 public class ReadManager {
+
+    public static String takePassword(Scanner scanner) {
+        String password;
+        Console console = System.console();
+        while (true) {
+            System.out.println("Введите пароль:");
+            if (console != null) {
+                char[] letters = console.readPassword();
+                if (letters == null) continue;
+                password = String.valueOf(letters);
+            } else password = scanner.nextLine();
+            if (password.matches("(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[_0-9a-zA-Z!@#$%^&*]{5,25}")){
+                return password;
+            }
+            else {
+                System.out.println("В пароле обязательно от 5 до 25 символов (минимум 1 цифра, 1 заглавная и 1 строчная буква латинского алфавита)");
+            }
+        }
+    }
+
 
     /**
      * method checks if the name is entered correctly, it contains only letters or not
@@ -18,7 +39,7 @@ public class ReadManager {
      */
 
     public static String readName(Scanner sc) throws IllegalArgumentException {
-        System.out.println("Введите имя персонажа ");
+        System.out.println("Введите имя ");
         String name = sc.nextLine().trim();
         while (true) {
             if (name.equals("")) {
