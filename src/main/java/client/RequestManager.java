@@ -1,6 +1,7 @@
 package client;
 
 import common.Configuration;
+import common.data.User;
 import common.network.Request;
 import common.network.CommandResult;
 import server.PersonCollection;
@@ -15,6 +16,7 @@ import java.net.Socket;
 public class RequestManager {
     private int port = Configuration.PORT;
     protected final int max_attempts = 5;
+    private User user;
 
     public RequestManager() {
 
@@ -55,6 +57,7 @@ public class RequestManager {
             throw new IllegalArgumentException("Запрос является null");
         }
 
+        request.user = user;
         int attempt = 0;
         while (attempt < max_attempts) {
             try {
@@ -83,5 +86,13 @@ public class RequestManager {
             }
         }
         return new CommandResult(false, "Прошло 30 секунд, сервер не отвечает.");
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
