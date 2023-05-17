@@ -18,12 +18,14 @@ public class CommandManager {
     private static boolean isWorking = true;
     private static HashMap<String, Command> commandMap = new HashMap<String, Command>();
     private static String filelink;
+    private RequestManager requestManager;
 
     /**
      * creates a commandMap with commands
      */
     public CommandManager(RequestManager requestManager) {
         commandMap = new HashMap<>();
+        this.requestManager = requestManager;
         initializeCommand(new Add(requestManager));
         initializeCommand(new AddIfMax(requestManager));
         initializeCommand(new AddIfMin(requestManager));
@@ -44,7 +46,7 @@ public class CommandManager {
     /**
      * checks for the correctness of the command and starts
      */
-    public static void existCommand(String input) {
+    public void existCommand(String input) {
         String[] args = input.trim().split(" ");
         try {
             String command = args[0];
@@ -59,12 +61,16 @@ public class CommandManager {
                 System.out.println("Проблема с аргументом, обратитесь к команде help");
                 return;
             }
-
-            if (commandMap.containsKey(command)) {
-                commandMap.get(command).setArgument(argument);
-                commandMap.get(command).execute(args);
+            Command commanda = commandMap.get(command);
+            if (requestManager.getUser()!=null || commanda.canExecute()) {
+                if (commandMap.containsKey(command)) {
+                    commandMap.get(command).setArgument(argument);
+                    commandMap.get(command).execute(args);
+                } else {
+                    System.out.println("Команды " + args[0] + " не существует");
+                }
             } else {
-                System.out.println("Команды " + args[0] + " не существует");
+                System.out.println("Пользователь не авторизирован");
             }
         } catch (NoSuchElementException e) {
             System.out.println("Команда введена неверно");
