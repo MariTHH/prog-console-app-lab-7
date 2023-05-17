@@ -15,9 +15,11 @@ public class Service {
     private HashMap<String, Executable> commands = new HashMap<>();
     private PersonCollection collection = new PersonCollection();
     private DataManager dataManager;
+    private DBManager dbManager;
 
-    public Service(DataManager dataManager) {
+    public Service(DataManager dataManager, DBManager dbManager) {
         this.dataManager = dataManager;
+        this.dbManager = dbManager;
         initCommands();
     }
 
@@ -39,6 +41,10 @@ public class Service {
         commands.put("remove_greater", dataManager::removeGreater);
         commands.put("update", dataManager::update);
         commands.put("exit", dataManager::exit);
+        if (dbManager != null) {
+            commands.put("login", dbManager::login);
+            commands.put("register", dbManager::register);
+        }
 
     }
 
