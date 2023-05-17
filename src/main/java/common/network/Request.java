@@ -1,6 +1,7 @@
 package common.network;
 
 import common.data.Person;
+import common.data.User;
 import server.PersonCollection;
 
 import java.io.Serializable;
@@ -13,6 +14,7 @@ public class Request<T> implements Serializable {
     public String command;
     public PersonCollection personCollection;
     public T type;
+    public User user;
 
     public Request(String command, T type, PersonCollection personCollection) {
         this.command = command;
