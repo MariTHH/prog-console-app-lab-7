@@ -38,4 +38,8 @@ public abstract class Command {
 
     public abstract String getDescription();
 
+    public boolean canExecute() {
+        return false;
+    }
+
 }
