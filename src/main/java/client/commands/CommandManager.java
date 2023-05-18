@@ -41,6 +41,8 @@ public class CommandManager {
         initializeCommand(new RemoveGreater(requestManager));
         initializeCommand(new Update(requestManager));
         initializeCommand(new ExecuteScript(personCollection));
+        initializeCommand(new Login(requestManager));
+        initializeCommand(new Register(requestManager));
     }
 
     /**
