@@ -12,6 +12,8 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -19,9 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class MainServer {
     private static int port = Configuration.PORT;
+    private static final String url = "jdbc:postgresql://localhost:1264/studs";
+    private static final ExecutorService readRequestThreadPool = Executors.newCachedThreadPool();
 
     /**
      * Start server, connect to the client and get requests with a collection and commands, execute them
+     *
      * @param args - port
      */
     public static void main(String[] args) {
@@ -32,13 +37,29 @@ public class MainServer {
                 System.out.println("Не получается спарсить порт. Используется " + port);
             }
         }
+        String[] loginData = Parser.getLoginData();
+        if (loginData == null) {
+            return;
+        }
+
+        DBManager dbManager;
+        try {
+            dbManager = new DBManager(url, loginData[0], loginData[1]);
+            dbManager.connectDB();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return;
+        }
+
         DataManager dataManager;
-        PersonCollection collection = new PersonCollection();
-        Person person = new Person();
-        dataManager = collection;
+        try {
+            dataManager = new PersonCollection(dbManager);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return;
+        }
 
         ServerSocketChannel serverSocketChannel;
-
         try {
             serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.bind(new InetSocketAddress(port));
@@ -56,36 +77,20 @@ public class MainServer {
             save(dataManager, "s");
         }));
 
-        Service service = new Service(dataManager);
+        Service service = new Service(dataManager, dbManager);
 
         AtomicBoolean exit = new AtomicBoolean(false);
         getUserInputHandler(dataManager, exit).start();
 
         while (!exit.get()) {
-            try (SocketChannel socketChannel = serverSocketChannel.accept()) {
+            try {
+                SocketChannel socketChannel = serverSocketChannel.accept();
                 if (socketChannel == null) continue;
-                ObjectInputStream objectInputStream = new ObjectInputStream(socketChannel.socket().getInputStream());
-                Request<PersonCollection> request = (Request<PersonCollection>) objectInputStream.readObject();
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(socketChannel.socket().getOutputStream());
-                CommandResult result = service.executeCommand(request);
-                if (request.type == collection || request.type != null && request.personCollection != null) {
-                    result.setPersonCollection(request.personCollection);
-                    collection.loadCollection(request.personCollection.getCollection());
-                    collection.getCollection();
-                }
-                System.out.println(socketChannel.getRemoteAddress() + ": " + request.command);
-
-                if (result.status)
-                    System.out.println("Команда выполнена успешно");
-                else
-                    System.out.println("Команда выполнена неуспешно");
-                objectOutputStream.writeObject(result);
-
-            } catch (IOException | ClassNotFoundException | JAXBException e) {
-                System.out.println("Что-то пошло не так..");
-
+                RequestProcess requestProcess = new RequestProcess(service);
+                readRequestThreadPool.submit(new ReadRequest(socketChannel, requestProcess));
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
-
         }
 
     }

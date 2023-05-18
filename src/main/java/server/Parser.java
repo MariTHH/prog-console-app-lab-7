@@ -1,7 +1,10 @@
 package server;
 
+import common.Configuration;
+
 import javax.xml.bind.*;
 import java.io.*;
+import java.util.Scanner;
 
 /**
  * Parse collection to XML and Java Object
@@ -48,5 +51,15 @@ public  class Parser {
         } catch (NullPointerException e) {
             throw new RuntimeException();
         }
+    }
+
+    public static String[] getLoginData() {
+        try {
+            Scanner scanner = new Scanner(new FileReader("biba"));
+            return new String[] {scanner.nextLine(), scanner.nextLine()};
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл не найден");
+        }
+        return null;
     }
 }

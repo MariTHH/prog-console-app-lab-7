@@ -2,6 +2,7 @@ package server;
 
 import client.RequestManager;
 import client.commands.CommandManager;
+import common.Configuration;
 import common.DataManager;
 import common.data.Person;
 import common.network.CommandResult;
@@ -26,9 +27,17 @@ public class PersonCollection extends DataManager implements Serializable {
     private Parser parser;
     private TreeSet<Person> treeSet = new TreeSet<>();
     private static Date creationDate = new Date();
+    private DBManager dbManager;
 
     public PersonCollection(Parser parser) throws JAXBException {
         this.parser = parser;
+    }
+
+    public PersonCollection(DBManager dbManager) {
+        this.dbManager = dbManager;
+        this.parser = new Parser();
+
+        loadCollectionFromDB();
     }
 
     public PersonCollection() {
@@ -42,6 +51,10 @@ public class PersonCollection extends DataManager implements Serializable {
      */
     public void loadCollection(TreeSet<Person> request) throws JAXBException {
         setCollection(request);
+    }
+
+    private void loadCollectionFromDB() {
+        treeSet = dbManager.readCollection();
     }
 
     /**

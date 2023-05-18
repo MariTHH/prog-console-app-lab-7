@@ -8,6 +8,8 @@
       <root url="jar://$USER_HOME$/Downloads/maven-compiler-plugin-3.10.0.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/maven-javadoc-plugin-3.1.0.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/maven-assembly-plugin-3.1.0.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mysql-connector-j-8.0.32.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/postgresql-42.6.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
