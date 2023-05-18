@@ -11,6 +11,6 @@ public class Configuration {
     public static final int DB_PORT = 2908;
     public static final boolean HELIOS = true;
 
-    public static final String jdbcLocal = String.format("jdbc:postgresql://%s:%d/studs", HELIOS ? DB_HOST : IP, HELIOS ? 5432 : DB_PORT);
+    public static final String jdbcLocal = String.format("jdbc:postgresql://%s:%d/studs", HELIOS? DB_HOST : IP, HELIOS? 5432 : DB_PORT);
 }
 
