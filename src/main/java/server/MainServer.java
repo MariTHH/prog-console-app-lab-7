@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class MainServer {
     private static int port = Configuration.PORT;
-    private static final String url = "jdbc:postgresql://localhost:1264/studs";
     private static final ExecutorService readRequestThreadPool = Executors.newCachedThreadPool();
 
     /**
@@ -46,7 +45,7 @@ public class MainServer {
 
         DBManager dbManager;
         try {
-            dbManager = new DBManager(url, loginData[0], loginData[1]);
+            dbManager = new DBManager(Configuration.jdbcLocal, loginData[0], loginData[1]);
             dbManager.connectDB();
         } catch (Exception exception) {
             exception.printStackTrace();
