@@ -10,7 +10,7 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DBManager {
-    private static final String TABLE_USER = "\"user\"";
+    private static final String TABLE_USER = "\"table_user\"";
     private static final String TABLE_PERSON = "person";
 
     private static final String USER_ID = "id";
@@ -45,9 +45,9 @@ public class DBManager {
                     "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING %s",
             TABLE_PERSON,
-            NAME, COORDINATE_X, COORDINATE_Y, CREATION_DATE, COUNTRY, HEIGHT, HAIR_COLOR, EYE_COLOR,
-            LOCATION_NAME, LOCATION_X, LOCATION_Y, OWNER_USERNAME, PERSON_ID);
-
+            NAME, COORDINATE_X, COORDINATE_Y, CREATION_DATE, HEIGHT, EYE_COLOR, HAIR_COLOR, COUNTRY,
+            LOCATION_X, LOCATION_Y, LOCATION_NAME, OWNER_USERNAME, PERSON_ID);
+    /**
      * private static final String SQL_GET_MIN_STUDY_GROUP_NAME = String.format("SELECT %s FROM %s ORDER BY %s LIMIT 1",
      * NAME, TABLE_STUDY_GROUP, NAME);
      * private static final String SQL_REMOVE_BY_ID = String.format("DELETE FROM %s WHERE %s = ?",
@@ -114,8 +114,10 @@ public class DBManager {
     public CommandResult login(Request<?> request) {
         try {
             User user = (User) request.type;
-            if (checkUser(user))
+            if (checkUser(user)) {
+                //System.out.println("Добро пожаловать");
                 return new CommandResult(true, "Добро пожаловать");
+            }
             return new CommandResult(false, "Неверный логин или пароль");
         } catch (SQLException exception) {
             return new CommandResult(false, "SQL-ошибка на сервере");
@@ -201,7 +203,7 @@ public class DBManager {
         );
     }
 
-    /**private int prepareStatement(PreparedStatement statement, Person person, boolean changeDate) throws SQLException {
+    private int prepareStatement(PreparedStatement statement, Person person, boolean changeDate) throws SQLException {
      Coordinates coordinates = person.getCoordinates();
      ZonedDateTime creationDate = person.getCreationDate();
      Country nationality = person.getNationality();
@@ -224,5 +226,30 @@ public class DBManager {
      statement.setString(i++, location.getLocationName());
 
      return i;
-     }*/
+     }
+    public boolean addPerson(Person person, String owner) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(SQL_ADD_PERSON,
+                    Statement.RETURN_GENERATED_KEYS);
+            int i = prepareStatement(statement, person, true);
+            statement.setString(i, owner);
+            int affectedRows = statement.executeUpdate();
+            if (affectedRows == 0)
+                throw new SQLException("No rows affected");
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next())
+                    person.setId(generatedKeys.getInt(PERSON_ID));
+                else
+                    throw new SQLException("No ID obtained");
+            }
+            statement.close();
+            return true;
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+
+        }
+
+        return false;
+    }
+
 }
