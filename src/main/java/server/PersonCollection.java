@@ -135,7 +135,7 @@ public class PersonCollection extends DataManager {
     public boolean toHeight(int height_int) throws SQLException {
         boolean flag = true;
         loadCollectionFromDB();
-        int a = Integer.parseInt(dbManager.getB());
+        int a = Integer.parseInt(dbManager.getMinHeight());
         getCollection();
         if (height_int > a) {
             flag = true;
@@ -207,10 +207,15 @@ public class PersonCollection extends DataManager {
             ID = Integer.parseInt((String) request.type);
             if (treeSet.stream().noneMatch(person -> person.getId() == (ID)))
                 return new CommandResult(false, "Персонажа с таким ID не существует");
-            treeSet.removeIf(person -> person.getId() == (ID));
-            return new CommandResult(true, "Персонаж успешно удален");
+            boolean remove = dbManager.removeById(ID, request.user.getUsername());
+            if (remove) {
+                treeSet.removeIf(person -> person.getId() == (ID));
+                return new CommandResult(true, "Персонаж удален");
+            }
         } catch (NumberFormatException e) {
             message = "Вы неправильно ввели ID";
+        } catch (SQLException e) {
+            message = "Ошибка на сервере, связанная с бд";
         }
         return new CommandResult(true, message);
     }
