@@ -132,14 +132,15 @@ public class PersonCollection extends DataManager {
      * @param height_int - height which client entered
      * @return true or false
      */
-    public boolean toHeight(int height_int) {
+    public boolean toHeight(int height_int) throws SQLException {
         boolean flag = true;
-        for (Person person : treeSet) {
-            if (height_int > person.getHeight()) {
-                flag = true;
-            } else {
-                flag = false;
-            }
+        loadCollectionFromDB();
+        int a = Integer.parseInt(dbManager.getB());
+        getCollection();
+        if (height_int > a) {
+            flag = true;
+        } else {
+            flag = false;
         }
         return flag;
     }
@@ -159,10 +160,15 @@ public class PersonCollection extends DataManager {
      *
      * @param request - person which client create
      */
-    public CommandResult addIfMin(Request<?> request) {
-        Person person = (Person) request.type;
-        addPerson(person);
-        return new CommandResult(true, "Новый элемент успешно добавлен");
+    public synchronized CommandResult addIfMin(Request<?> request) {
+        try {
+            Person person = (Person) request.type;
+            if (!toHeight(person.getHeight()))
+                return addPerson(person, request);
+            return new CommandResult(true, "Персонаж добавлен");
+        } catch (SQLException e) {
+            return new CommandResult(false, "Ошибка на сервере, связанная с бд");
+        }
     }
 
 

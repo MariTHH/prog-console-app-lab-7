@@ -36,7 +36,7 @@ public class Person implements Comparable<Person>, Serializable {
             name = "height",
             required = true
     )
-    private int height;
+    private Integer height;
     @XmlElement(
             name = "eyeColor",
             required = true
@@ -116,7 +116,7 @@ public class Person implements Comparable<Person>, Serializable {
         return this.height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(Integer height) {
         this.height = height;
     }
 

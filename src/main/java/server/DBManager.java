@@ -4,6 +4,7 @@ import common.data.*;
 import common.network.CommandResult;
 import common.network.Request;
 
+import java.nio.file.AccessDeniedException;
 import java.sql.*;
 import java.time.ZonedDateTime;
 import java.util.TreeSet;
@@ -49,31 +50,14 @@ public class DBManager {
             NAME, COORDINATE_X, COORDINATE_Y, CREATION_DATE, HEIGHT, EYE_COLOR, HAIR_COLOR, COUNTRY,
             LOCATION_X, LOCATION_Y, LOCATION_NAME, OWNER_USERNAME, PERSON_ID);
 
-    private static final String SQL_GET_MIN_STUDY_GROUP_NAME = String.format("SELECT %s FROM %s ORDER BY %s LIMIT 1", NAME, TABLE_PERSON, NAME);
-    /**
-     * private static final String SQL_REMOVE_BY_ID = String.format("DELETE FROM %s WHERE %s = ?",
-     * TABLE_STUDY_GROUP, STUDY_GROUP_ID);
-     * private static final String SQL_GET_GREATER = String.format("SELECT %s, %s FROM %s WHERE %s > ?",
-     * STUDY_GROUP_ID, OWNER_USERNAME, TABLE_STUDY_GROUP, NAME);
-     * private static final String SQL_GET_LOWER = String.format("SELECT %s, %s FROM %s WHERE %s < ?",
-     * STUDY_GROUP_ID, OWNER_USERNAME, TABLE_STUDY_GROUP, NAME);
-     * private static final String SQL_GET_ALL_BY_SHOULD_BE_EXPELLED = String.format("SELECT %s, %s FROM %s WHERE %s = ?",
-     * STUDY_GROUP_ID, OWNER_USERNAME, TABLE_STUDY_GROUP, SHOULD_BE_EXPELLED);
-     * private static final String SQL_UPDATE_BY_ID = String.format("UPDATE %s SET " +
-     * "%s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? " +
-     * "WHERE %s = ?",
-     * TABLE_STUDY_GROUP, NAME, COORDINATE_X, COORDINATE_Y, STUDENTS_COUNT, EXPELLED_STUDENTS, SHOULD_BE_EXPELLED, FORM_OF_EDUCATION,
-     * ADMIN_NAME, ADMIN_WEIGHT, ADMIN_PASSPORT, ADMIN_LOCATION_X, ADMIN_LOCATION_Y, ADMIN_LOCATION_NAME, STUDY_GROUP_ID);
-     * <p>
-     * private static final String SQL_GET_LAST_ID = String.format("SELECT %s FROM %s ORDER BY %s DESC LIMIT 1",
-     * STUDY_GROUP_ID, TABLE_STUDY_GROUP, STUDY_GROUP_ID);
-     * private static final String SQL_ID_EXISTENCE = String.format("SELECT COUNT(*) as count FROM %s WHERE %s = ?",
-     * TABLE_STUDY_GROUP, STUDY_GROUP_ID);
-     * private static final String SQL_GET_STUDY_GROUPS = String.format("SELECT * FROM %s",
-     * TABLE_STUDY_GROUP);
-     * private static final String SQL_BELONGS_TO_USER = String.format("SELECT %s FROM %s WHERE %s = ?",
-     * OWNER_USERNAME, TABLE_STUDY_GROUP, STUDY_GROUP_ID);
-     */
+    private static final String SQL_GET_MIN_PERSON_HEIGHT = String.format("SELECT MIN(%s) FROM %s", HEIGHT, TABLE_PERSON);
+    private static final String SQL_GET_MAX_PERSON_HEIGHT = String.format("SELECT MAX(%s) FROM %s", HEIGHT, TABLE_PERSON);
+
+    private static final String SQL_REMOVE_BY_ID = String.format("DELETE FROM %s WHERE %s = ?",
+            TABLE_PERSON, PERSON_ID);
+    private static final String SQL_ID_EXISTENCE = String.format("SELECT COUNT(*) as count FROM %s WHERE %s = ?",
+     TABLE_PERSON, PERSON_ID);
+    private static final String SQL_BELONGS_TO_USER = String.format("SELECT %s FROM %s WHERE %s = ?", OWNER_USERNAME, TABLE_PERSON, PERSON_ID);
     private static final String SQL_GET_PERSON = String.format("SELECT * FROM %s", TABLE_PERSON);
 
     private final String url;
@@ -253,6 +237,63 @@ public class DBManager {
         }
 
         return false;
+    }
+
+    String b;
+
+    public String getMinHeight() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(SQL_GET_MIN_PERSON_HEIGHT);
+        ResultSet resultSet = statement.executeQuery();
+        b = resultSet.getString(HEIGHT);
+        return resultSet.getString(HEIGHT);
+
+    }
+
+    public String getB() {
+        return b;
+    }
+
+
+    public boolean toHeight(int height_int) throws SQLException {
+        boolean flag = true;
+        int a = Integer.parseInt(this.getMinHeight());
+        if (height_int > a) {
+            flag = true;
+        } else {
+            flag = false;
+        }
+        return flag;
+    }
+
+    public boolean removeById(int id, String username) throws SQLException {
+        if (!idExists(id)) ;
+        if (!belongsToUser(id, username)) ;
+
+        PreparedStatement statement = connection.prepareStatement(SQL_REMOVE_BY_ID);
+        statement.setInt(1, id);
+        statement.executeUpdate();
+
+        return true;
+    }
+
+    public boolean idExists(int id) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(SQL_ID_EXISTENCE);
+        statement.setInt(1, id);
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+        return resultSet.getInt(1) != 0;
+    }
+
+    public boolean belongsToUser(int id, String username) throws SQLException {
+        if (!idExists(id)) return false;
+
+        PreparedStatement statement = connection.prepareStatement(SQL_BELONGS_TO_USER);
+        statement.setInt(1, id);
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+        String owner = resultSet.getString(OWNER_USERNAME);
+
+        return username.equals(owner);
     }
 
 }
