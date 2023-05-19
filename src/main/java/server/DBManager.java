@@ -7,6 +7,7 @@ import common.network.Request;
 import java.sql.*;
 import java.time.ZonedDateTime;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DBManager {
@@ -162,8 +163,8 @@ public class DBManager {
         statement.close();
     }
 
-    public TreeSet<Person> readCollection() {
-        TreeSet<Person> collection = new TreeSet<>();
+    public ConcurrentSkipListSet<Person> readCollection() {
+        ConcurrentSkipListSet<Person> collection = new ConcurrentSkipListSet<>();
         try {
             PreparedStatement statement = connection.prepareStatement(SQL_GET_PERSON);
             ResultSet resultSet = statement.executeQuery();
@@ -205,29 +206,30 @@ public class DBManager {
     }
 
     private int prepareStatement(PreparedStatement statement, Person person, boolean changeDate) throws SQLException {
-     Coordinates coordinates = person.getCoordinates();
-     ZonedDateTime creationDate = person.getCreationDate();
-     Country nationality = person.getNationality();
-     Color eyeColor = person.getEyeColor();
-     Color hairColor = person.getHairColor();
-     Location location = person.getLocation();
+        Coordinates coordinates = person.getCoordinates();
+        ZonedDateTime creationDate = person.getCreationDate();
+        Country nationality = person.getNationality();
+        Color eyeColor = person.getEyeColor();
+        Color hairColor = person.getHairColor();
+        Location location = person.getLocation();
 
-     int i = 1;
-     statement.setString(i++, person.getName());
-     statement.setLong(i++, coordinates.getX());
-     statement.setInt(i++, coordinates.getY());
-     if (changeDate)
-     statement.setTimestamp(i++, Timestamp.from(creationDate.toInstant()));
-     statement.setInt(i++, person.getHeight());
-     statement.setString(i++, eyeColor.name());
-     statement.setString(i++, hairColor.name());
-     statement.setString(i++, nationality.name());
-     statement.setDouble(i++, location.getX());
-     statement.setFloat(i++, location.getY());
-     statement.setString(i++, location.getLocationName());
+        int i = 1;
+        statement.setString(i++, person.getName());
+        statement.setLong(i++, coordinates.getX());
+        statement.setInt(i++, coordinates.getY());
+        if (changeDate)
+            statement.setTimestamp(i++, Timestamp.from(creationDate.toInstant()));
+        statement.setInt(i++, person.getHeight());
+        statement.setString(i++, eyeColor.name());
+        statement.setString(i++, hairColor.name());
+        statement.setString(i++, nationality.name());
+        statement.setDouble(i++, location.getX());
+        statement.setFloat(i++, location.getY());
+        statement.setString(i++, location.getLocationName());
 
-     return i;
-     }
+        return i;
+    }
+
     public boolean addPerson(Person person, String owner) {
         try {
             PreparedStatement statement = connection.prepareStatement(SQL_ADD_PERSON,
