@@ -5,6 +5,7 @@ import common.network.Request;
 import server.Service;
 
 import javax.xml.bind.JAXBException;
+import java.sql.SQLException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -39,7 +40,7 @@ public class RequestProcess {
         }
 
         @Override
-        public CommandResult call() throws JAXBException {
+        public CommandResult call() throws JAXBException, SQLException {
             CommandResult result = service.executeCommand(request);
             if (result.status)
                 System.out.println("Команда выполнена успешно");
