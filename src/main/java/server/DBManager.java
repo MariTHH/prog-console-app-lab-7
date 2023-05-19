@@ -55,9 +55,9 @@ public class DBManager {
 
     private static final String SQL_REMOVE_BY_ID = String.format("DELETE FROM %s WHERE %s = ?",
             TABLE_PERSON, PERSON_ID);
-    private static final String SQL_ID_EXISTENCE = String.format("SELECT COUNT(*) as count FROM %s WHERE %s = ?",
-     TABLE_PERSON, PERSON_ID);
-    private static final String SQL_BELONGS_TO_USER = String.format("SELECT %s FROM %s WHERE %s = ?", OWNER_USERNAME, TABLE_PERSON, PERSON_ID);
+    private static final String SQL_ID_EXIST= String.format("SELECT COUNT(*) as count FROM %s WHERE %s = ?",
+            TABLE_PERSON, PERSON_ID);
+    private static final String SQL_BELONGS_USER = String.format("SELECT %s FROM %s WHERE %s = ?", OWNER_USERNAME, TABLE_PERSON, PERSON_ID);
     private static final String SQL_GET_PERSON = String.format("SELECT * FROM %s", TABLE_PERSON);
 
     private final String url;
@@ -239,35 +239,17 @@ public class DBManager {
         return false;
     }
 
-    String b;
-
     public String getMinHeight() throws SQLException {
         PreparedStatement statement = connection.prepareStatement(SQL_GET_MIN_PERSON_HEIGHT);
         ResultSet resultSet = statement.executeQuery();
-        b = resultSet.getString(HEIGHT);
         return resultSet.getString(HEIGHT);
 
     }
 
-    public String getB() {
-        return b;
-    }
-
-
-    public boolean toHeight(int height_int) throws SQLException {
-        boolean flag = true;
-        int a = Integer.parseInt(this.getMinHeight());
-        if (height_int > a) {
-            flag = true;
-        } else {
-            flag = false;
-        }
-        return flag;
-    }
 
     public boolean removeById(int id, String username) throws SQLException {
-        if (!idExists(id)) ;
-        if (!belongsToUser(id, username)) ;
+        if (!existId(id)); // do exception;
+        if (!belongsToUser(id, username)); // do exception
 
         PreparedStatement statement = connection.prepareStatement(SQL_REMOVE_BY_ID);
         statement.setInt(1, id);
@@ -276,8 +258,8 @@ public class DBManager {
         return true;
     }
 
-    public boolean idExists(int id) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(SQL_ID_EXISTENCE);
+    public boolean existId(int id) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(SQL_ID_EXIST);
         statement.setInt(1, id);
         ResultSet resultSet = statement.executeQuery();
         resultSet.next();
@@ -285,9 +267,9 @@ public class DBManager {
     }
 
     public boolean belongsToUser(int id, String username) throws SQLException {
-        if (!idExists(id)) return false;
+        if (!existId(id)) return false;
 
-        PreparedStatement statement = connection.prepareStatement(SQL_BELONGS_TO_USER);
+        PreparedStatement statement = connection.prepareStatement(SQL_BELONGS_USER);
         statement.setInt(1, id);
         ResultSet resultSet = statement.executeQuery();
         resultSet.next();
