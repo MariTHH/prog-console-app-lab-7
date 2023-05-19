@@ -1,11 +1,13 @@
 package server;
 
+
 import common.DataManager;
 import common.network.CommandResult;
 import common.network.Request;
 
 
 import javax.xml.bind.JAXBException;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 /**
@@ -56,7 +58,7 @@ public class Service {
      *
      * @param request request - command from client
      */
-    public CommandResult executeCommand(Request<?> request) throws JAXBException {
+    public CommandResult executeCommand(Request<?> request) throws JAXBException, SQLException {
         if (!commands.containsKey(request.command) && request.command != null)
             return new CommandResult(false, "Такой команды на сервере нет.");
         else if (request.command == null && request.personCollection != null) {
