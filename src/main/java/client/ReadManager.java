@@ -111,7 +111,7 @@ public class ReadManager {
         while (true) {
             String height_string = sc.nextLine().trim();
             try {
-                int height = Integer.parseInt(height_string);
+                Integer height = Integer.valueOf(height_string);
                 if (height > 0) {
                     return height;
                 } else {
