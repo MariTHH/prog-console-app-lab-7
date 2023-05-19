@@ -41,6 +41,10 @@ public class Login extends Command {
             if (result.status) {
                 requestManager.setUser(user);
             }
+            System.out.println(result.message);
         }
+    }
+    public boolean canExecute() {
+        return true;
     }
 }
