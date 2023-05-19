@@ -87,11 +87,20 @@ public class PersonCollection extends DataManager {
     public CommandResult add(Request<?> request) {
         try {
             Person person = (Person) request.type;
-            treeSet.add(person);
-            return new CommandResult(true, "Новый элемент успешно добавлен");
+            return addPerson(person, request);
+            //return new CommandResult(true, "Новый элемент успешно добавлен");
         } catch (Exception exception) {
             return new CommandResult(false, "Передан аргумент другого типа");
         }
+    }
+
+    private CommandResult addPerson(Person person, Request<?> request) throws SQLException {
+        boolean ok = dbManager.addPerson(person, request.user.getUsername());
+        if (ok) {
+            treeSet.add(person);
+            return new CommandResult(true, "Новый элемент успешно добавлен");
+        }
+        return new CommandResult(false, "Не удалось добавить элемент");
     }
 
 
