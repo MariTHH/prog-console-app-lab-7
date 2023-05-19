@@ -18,9 +18,9 @@ public class GenerationId {
      * @return id (int)
      */
     public static int generateID() {
-        int id = random.nextInt(Integer.MAX_VALUE);
+        int id = 1;
         while (arg.contains(id)) {
-            id = random.nextInt(Integer.MAX_VALUE);
+            id +=1;
         }
         arg.add(id);
         return id;
