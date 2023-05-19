@@ -1,6 +1,8 @@
 package common.data;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private static final long serialVersionUID = 0x0A0A0A;
 
     private String username;
