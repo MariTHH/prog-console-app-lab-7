@@ -40,16 +40,16 @@ public class DBManager {
             TABLE_USER, USERNAME);
     private static final String SQL_CHECK_USER = String.format("SELECT COUNT(*) FROM %s WHERE %s = ? AND %s = ?",
             TABLE_USER, USERNAME, PASSWORD);
-    /**
+
     private static final String SQL_ADD_PERSON = String.format("INSERT INTO %s (" +
                     "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING %s",
             TABLE_PERSON,
             NAME, COORDINATE_X, COORDINATE_Y, CREATION_DATE, HEIGHT, EYE_COLOR, HAIR_COLOR, COUNTRY,
             LOCATION_X, LOCATION_Y, LOCATION_NAME, OWNER_USERNAME, PERSON_ID);
+
+    private static final String SQL_GET_MIN_STUDY_GROUP_NAME = String.format("SELECT %s FROM %s ORDER BY %s LIMIT 1", NAME, TABLE_PERSON, NAME);
     /**
-     * private static final String SQL_GET_MIN_STUDY_GROUP_NAME = String.format("SELECT %s FROM %s ORDER BY %s LIMIT 1",
-     * NAME, TABLE_STUDY_GROUP, NAME);
      * private static final String SQL_REMOVE_BY_ID = String.format("DELETE FROM %s WHERE %s = ?",
      * TABLE_STUDY_GROUP, STUDY_GROUP_ID);
      * private static final String SQL_GET_GREATER = String.format("SELECT %s, %s FROM %s WHERE %s > ?",
@@ -129,6 +129,7 @@ public class DBManager {
     public CommandResult register(Request<?> request) {
         try {
             User user = (User) request.type;
+
             if (!userExists(user.getUsername())) {
                 registerUser(user);
                 return new CommandResult(true,
