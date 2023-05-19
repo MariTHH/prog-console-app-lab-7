@@ -2,7 +2,6 @@ package server;
 
 import client.RequestManager;
 import client.commands.CommandManager;
-import common.Configuration;
 import common.DataManager;
 import common.data.Person;
 import common.network.CommandResult;
@@ -10,8 +9,9 @@ import common.network.Request;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.*;
-import java.io.*;
+import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -22,10 +22,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
         name = "persons"
 )
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PersonCollection extends DataManager implements Serializable {
+public class PersonCollection extends DataManager {
     @XmlElement(name = "Person")
     private Parser parser;
-    private TreeSet<Person> treeSet = new TreeSet<>();
+    private ConcurrentSkipListSet<Person> treeSet = new ConcurrentSkipListSet<>();
     private static Date creationDate = new Date();
     private DBManager dbManager;
 
@@ -49,24 +49,15 @@ public class PersonCollection extends DataManager implements Serializable {
      *
      * @param request - collection
      */
-    public void loadCollection(TreeSet<Person> request) throws JAXBException {
+    public void loadCollection(ConcurrentSkipListSet<Person> request) {
         setCollection(request);
     }
 
-    private void loadCollectionFromDB() {
-        treeSet = dbManager.readCollection();
+    public void loadCollectionFromDB() {
+        setCollection(dbManager.readCollection());
     }
 
-    /**
-     * adds Person
-     *
-     * @param person from client
-     */
-    public void addPerson(Person person) {
-        treeSet.add(person);
-    }
-
-    public TreeSet<Person> getCollection() {
+    public ConcurrentSkipListSet<Person> getCollection() {
         return treeSet;
     }
 
@@ -151,7 +142,6 @@ public class PersonCollection extends DataManager implements Serializable {
      */
     public CommandResult addIfMax(Request<?> request) {
         Person person = (Person) request.type;
-        addPerson(person);
         return new CommandResult(true, "Новый элемент успешно добавлен");
     }
 
@@ -289,7 +279,7 @@ public class PersonCollection extends DataManager implements Serializable {
      *
      * @param treeSet - our person collection
      */
-    public void setCollection(TreeSet<Person> treeSet) {
+    public void setCollection(ConcurrentSkipListSet<Person> treeSet) {
 
         for (Person person : treeSet) {
             person.setName(person.getName());
