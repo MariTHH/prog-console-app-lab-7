@@ -55,7 +55,15 @@ public class DBManager {
 
     private static final String SQL_REMOVE_BY_ID = String.format("DELETE FROM %s WHERE %s = ?",
             TABLE_PERSON, PERSON_ID);
-    private static final String SQL_ID_EXIST= String.format("SELECT COUNT(*) as count FROM %s WHERE %s = ?",
+    private static final String SQL_GET_GREATER = String.format("SELECT %s, %s FROM %s WHERE %s > ?",
+            PERSON_ID, OWNER_USERNAME, TABLE_PERSON, HEIGHT);
+    private static final String SQL_UPDATE_BY_ID = String.format("UPDATE %s SET " +
+                    "%s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?" +
+                    "WHERE %s = ?",
+            TABLE_PERSON,
+            NAME, COORDINATE_X, COORDINATE_Y, HEIGHT, EYE_COLOR, HAIR_COLOR, COUNTRY,
+            LOCATION_X, LOCATION_Y, LOCATION_NAME, PERSON_ID);
+    private static final String SQL_ID_EXIST = String.format("SELECT COUNT(*) as count FROM %s WHERE %s = ?",
             TABLE_PERSON, PERSON_ID);
     private static final String SQL_BELONGS_USER = String.format("SELECT %s FROM %s WHERE %s = ?", OWNER_USERNAME, TABLE_PERSON, PERSON_ID);
     private static final String SQL_GET_PERSON = String.format("SELECT * FROM %s", TABLE_PERSON);
