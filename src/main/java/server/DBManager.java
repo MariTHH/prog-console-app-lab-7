@@ -7,7 +7,7 @@ import common.network.Request;
 import java.nio.file.AccessDeniedException;
 import java.sql.*;
 import java.time.ZonedDateTime;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -171,6 +171,7 @@ public class DBManager {
 
     private Person getPersonFromResult(ResultSet resultSet) throws SQLException {
         return new Person(
+                resultSet.getInt(PERSON_ID),
                 resultSet.getString(NAME),
                 new Coordinates(
                         resultSet.getLong(COORDINATE_X),
@@ -185,7 +186,8 @@ public class DBManager {
                         resultSet.getFloat(LOCATION_Y),
                         resultSet.getString(LOCATION_NAME)
 
-                )
+                ),
+                resultSet.getString(OWNER_USERNAME)
         );
     }
 
@@ -239,17 +241,9 @@ public class DBManager {
         return false;
     }
 
-    public String getMinHeight() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(SQL_GET_MIN_PERSON_HEIGHT);
-        ResultSet resultSet = statement.executeQuery();
-        return resultSet.getString(HEIGHT);
-
-    }
-
-
     public boolean removeById(int id, String username) throws SQLException {
-        if (!existId(id)); // do exception;
-        if (!belongsToUser(id, username)); // do exception
+        if (!existId(id)) ; // do exception;
+        if (!belongsToUser(id, username)) ; // do exception
 
         PreparedStatement statement = connection.prepareStatement(SQL_REMOVE_BY_ID);
         statement.setInt(1, id);
@@ -278,4 +272,70 @@ public class DBManager {
         return username.equals(owner);
     }
 
+    public List<Integer> removeGreater(int height) throws SQLException {
+        List<Map.Entry<Integer, String>> list = getIdAndUser(SQL_GET_GREATER, height);
+        return getsID(list);
+    }
+
+    private List<Integer> getsID (List<Map.Entry<Integer, String>> list) throws SQLException {
+        List<Integer> deletedID = removeAndGetIds(list);
+        return deletedID;
+    }
+
+    private List<Integer> removeAndGetIds(List<Map.Entry<Integer, String>> list) throws SQLException {
+        List<Integer> deletedID = new ArrayList<>();
+        for (Map.Entry<Integer, String> person : list) {
+            boolean status = removeById(person.getKey(), person.getValue());
+            if (status) {
+                deletedID.add(person.getKey());
+            }
+        }
+        return deletedID;
+    }
+
+    public List<Map.Entry<Integer, String>> getIdAndUser(String SQL, Object arg) throws SQLException {
+        List<Map.Entry<Integer, String>> list = new ArrayList<>();
+        PreparedStatement statement = connection.prepareStatement(SQL);
+        if (arg instanceof String) {
+            statement.setString(1, (String) arg);
+        } else if (arg instanceof Integer) {
+            statement.setInt(1, (Integer) arg);
+        }
+        ResultSet resultSet = statement.executeQuery();
+        while (resultSet.next()) {
+            Integer id = resultSet.getInt(PERSON_ID);
+            String owner = resultSet.getString(OWNER_USERNAME);
+            list.add(new AbstractMap.SimpleEntry<>(id, owner));
+        }
+        return list;
+    }
+    public boolean deleteAllOwned(String username) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM " + TABLE_PERSON
+                    + " WHERE owner_username =?");
+            statement.setString(1, username);
+            statement.execute();
+        } catch (SQLException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean updatePerson(int id, Person person, String username) throws SQLException, AccessDeniedException{
+        if (!existId(id)); //exception
+        if (!belongsToUser(id, username)); //exception
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_BY_ID);
+            int i = prepareStatement(statement, person, false);
+            statement.setInt(i, id);
+            statement.executeUpdate();
+            statement.close();
+            return true;
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return false;
+    }
 }
