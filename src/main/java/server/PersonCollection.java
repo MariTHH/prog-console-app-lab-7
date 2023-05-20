@@ -9,6 +9,7 @@ import common.network.Request;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.*;
+import java.nio.file.AccessDeniedException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -132,15 +133,14 @@ public class PersonCollection extends DataManager {
      * @param height_int - height which client entered
      * @return true or false
      */
-    public boolean toHeight(int height_int) throws SQLException {
+    public boolean toHeight(int height_int) {
         boolean flag = true;
-        loadCollectionFromDB();
-        int a = Integer.parseInt(dbManager.getMinHeight());
-        getCollection();
-        if (height_int > a) {
-            flag = true;
-        } else {
-            flag = false;
+        for (Person person : treeSet) {
+            if (height_int > person.getHeight()) {
+                flag = true;
+            } else {
+                flag = false;
+            }
         }
         return flag;
     }
@@ -151,8 +151,13 @@ public class PersonCollection extends DataManager {
      * @param request - person which client create
      */
     public CommandResult addIfMax(Request<?> request) {
-        Person person = (Person) request.type;
-        return new CommandResult(true, "Новый элемент успешно добавлен");
+        try {
+            Person person = (Person) request.type;
+            addPerson(person, request);
+            return new CommandResult(true, "Персонаж добавлен");
+        } catch (SQLException e) {
+            return new CommandResult(false, "Ошибка на сервере, связанная с бд");
+        }
     }
 
     /**
@@ -160,11 +165,10 @@ public class PersonCollection extends DataManager {
      *
      * @param request - person which client create
      */
-    public synchronized CommandResult addIfMin(Request<?> request) {
+    public CommandResult addIfMin(Request<?> request) {
         try {
             Person person = (Person) request.type;
-            if (!toHeight(person.getHeight()))
-                return addPerson(person, request);
+            addPerson(person, request);
             return new CommandResult(true, "Персонаж добавлен");
         } catch (SQLException e) {
             return new CommandResult(false, "Ошибка на сервере, связанная с бд");
@@ -228,16 +232,29 @@ public class PersonCollection extends DataManager {
         String message = null;
         try {
             int height = Integer.parseInt((String) request.type);
-            if (height > 0) {
+            if (height > 0 || height == 0) {
                 treeSet.removeIf(person -> person.getHeight() > height);
-                message = "Удален персонаж выше заданного роста";
+                return deleteElements(dbManager.removeGreater(height));
             } else {
                 message = "Рост не может быть меньше нуля";
             }
         } catch (NumberFormatException e) {
             System.out.println("Рост введен некорректно");
+        } catch (SQLException exception) {
+            message = "SQL ошибка на сервере";
+        } catch (Exception exception) {
+            message = "Аргумент другого типа";
         }
+
         return new CommandResult(true, message);
+    }
+
+    private CommandResult deleteElements(List<Integer> deletedIds) {
+        if (deletedIds.size() > 0) {
+            deletedIds.forEach(id -> treeSet.removeIf(person -> person.getId() == id));
+            return new CommandResult(true, "Персонажи удалены");
+        }
+        return new CommandResult(true, "Персонажи не были удалены из-за отсутствия прав или отсутсвия персонажей");
     }
 
     /**
