@@ -342,12 +342,19 @@ public class PersonCollection extends DataManager {
             if (getById(person.getId()) == null) {
                 return new CommandResult(false, "Персонажа с таким ID не существует");
             }
-            treeSet.stream()
-                    .filter(person1 -> person1.getId() == person.getId())
-                    .forEach(person1 -> person1.update(person));
-            return new CommandResult(true, "Персонаж успешно обновлен");
+            boolean update = dbManager.updatePerson(person.getId(), person, request.user.getUsername());
+            if (update) {
+                treeSet.stream()
+                        .filter(person1 -> person1.getId() == person.getId())
+                        .forEach(person1 -> person1.update(person));
+                return new CommandResult(true, "Персонаж успешно обновлен");
+            }
         } catch (NumberFormatException e) {
             System.out.println("ID введен неверно");
+        } catch (AccessDeniedException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return new CommandResult(true, message);
     }
