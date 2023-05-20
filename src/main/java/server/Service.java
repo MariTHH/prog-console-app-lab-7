@@ -58,13 +58,14 @@ public class Service {
      *
      * @param request request - command from client
      */
-    public CommandResult executeCommand(Request<?> request) throws JAXBException, SQLException {
+    public CommandResult executeCommand(Request<?> request) throws SQLException {
         if (!commands.containsKey(request.command) && request.command != null)
             return new CommandResult(false, "Такой команды на сервере нет.");
         else if (request.command == null && request.personCollection != null) {
             collection.loadCollection(request.personCollection.getCollection());
             return new CommandResult(true, "правда");
         } else if (request.command == null) {
+            collection.setCollection(dbManager.readCollection());
             if (collection.toHeight((int) request.type) || collection.existID((int) request.type)) {
                 return new CommandResult(true, "правда");
             } else {
