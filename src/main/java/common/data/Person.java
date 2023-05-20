@@ -57,14 +57,8 @@ public class Person implements Comparable<Person>, Serializable {
             required = true
     )
     private Location location;
-
-    public Person() {
-        this.id = GenerationId.generateID();
-        this.creationDate = ZonedDateTime.now();
-    }
-
+    private String ownerUsername;
     public Person(String name, Coordinates coordinates, int height, Color eyeColor, Color hairColor, Country nationality, Location location) {
-        this.id = GenerationId.generateID();
         this.name = name;
         this.coordinates = coordinates;
         this.creationDate = ZonedDateTime.now();
@@ -73,6 +67,20 @@ public class Person implements Comparable<Person>, Serializable {
         this.hairColor = hairColor;
         this.nationality = nationality;
         this.location = location;
+    }
+
+    public Person(Integer id, String name, Coordinates coordinates, int height, Color eyeColor, Color hairColor, Country nationality, Location location,String ownerUsername) {
+        this.id = id;
+        this.name = name;
+        this.coordinates = coordinates;
+        this.creationDate = ZonedDateTime.now();
+        this.height = height;
+        this.eyeColor = eyeColor;
+        this.hairColor = hairColor;
+        this.nationality = nationality;
+        this.location = location;
+        this.ownerUsername = ownerUsername;
+
     }
 
     @XmlTransient
