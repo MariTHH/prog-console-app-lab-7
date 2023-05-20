@@ -179,8 +179,17 @@ public class PersonCollection extends DataManager {
     /**
      * clears the collection
      */
-    public CommandResult clear(Request<?> request) {
+    /** public CommandResult clear(Request<?> request) {
         treeSet.clear();
+        return new CommandResult(true, "Элементы удалены");
+    }
+    */
+    public CommandResult clear(Request<?> request) {
+        String username = request.user.getUsername();
+        if (!dbManager.deleteAllOwned(username)) {
+           return new CommandResult(false,"ss");
+        }
+        treeSet.removeIf(e -> e.getOwnerUsername().equals(username));
         return new CommandResult(true, "Элементы удалены");
     }
 
