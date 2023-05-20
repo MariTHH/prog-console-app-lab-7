@@ -1,17 +1,13 @@
 package client.commands.available.commands;
 
 import client.ClientManager;
-import client.MainClient;
 import client.RequestManager;
 import client.commands.Command;
 import common.data.Person;
 import common.network.CommandResult;
 import common.network.Request;
-import server.PersonCollection;
 
-import javax.xml.bind.JAXBException;
 import java.util.Scanner;
-import java.util.TreeSet;
 
 
 /**
@@ -47,6 +43,8 @@ public class AddIfMin extends Command {
                     } else {
                         newPerson = ClientManager.getNewPerson(new Scanner(System.in));
                     }
+                    assert newPerson != null;
+                    newPerson.setHeight(height);
                     Request<Person> request1 = new Request<>(getName(), newPerson, null);
                     CommandResult result1 = requestManager.sendRequest(request1);
 
