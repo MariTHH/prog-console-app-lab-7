@@ -82,6 +82,11 @@ public class Person implements Comparable<Person>, Serializable {
         this.ownerUsername = ownerUsername;
 
     }
+    public String getOwnerUsername() {
+        return ownerUsername;
+    }
+
+    public Person(){}
 
     @XmlTransient
     public int getId() {
