@@ -251,8 +251,16 @@ public class PersonCollection extends DataManager {
         try {
             int height = Integer.parseInt((String) request.type);
             if (height > 0 || height == 0) {
-                treeSet.removeIf(person -> person.getHeight() > height);
-                return deleteElements(dbManager.removeGreater(height));
+                for (Person person : treeSet) {
+                    if (person.getHeight() > height && Objects.equals(person.getOwnerUsername(), request.user.getUsername())) {
+                        if (dbManager.removeById(person.getId(), request.user.getUsername())) {
+                            treeSet.remove(person);
+                        }
+                        message = "Персонажи удалены";
+                    } else {
+                        message = "Проверьте указанный рост или у вас нет прав на удаление";
+                    }
+                }
             } else {
                 message = "Рост не может быть меньше нуля";
             }
@@ -364,7 +372,7 @@ public class PersonCollection extends DataManager {
             }
         } catch (NumberFormatException e) {
             System.out.println("ID введен неверно");
-        } catch (AccessDeniedException|SQLException e) {
+        } catch (AccessDeniedException | SQLException e) {
             System.out.println("Ошибка с бд");
         }
         return new CommandResult(true, message);
