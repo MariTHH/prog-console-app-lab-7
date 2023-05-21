@@ -31,19 +31,30 @@ public class Login extends Command {
         if (args.length > 1) {
             System.out.println("Вы неправильно ввели команду");
         } else {
-            Scanner scanner = new Scanner(System.in);
-            String username = ReadManager.readName(scanner);
-            String password = ReadManager.takePassword(scanner);
-            password = Confident.encode(password);
-            User user = new User(username, password);
-            Request<User> request = new Request<>(getName(), user, null);
-            CommandResult result = requestManager.sendRequest(request);
-            if (result.status) {
-                requestManager.setUser(user);
+            boolean flag = false;
+            while (!flag) {
+                Scanner scanner = new Scanner(System.in);
+                String username = ReadManager.readName(scanner);
+                Request<String> request1 = new Request<>("check_user", username, null);
+
+                CommandResult result1 = requestManager.sendRequest(request1);
+                if (result1.status) {
+                    flag = true;
+                    String password = ReadManager.takePassword(scanner);
+                    password = Confident.encode(password);
+                    User user = new User(username, password);
+                    Request<User> request = new Request<>(getName(), user, null);
+                    CommandResult result = requestManager.sendRequest(request);
+                    if (result.status) {
+                        requestManager.setUser(user);
+                    }
+                    System.out.println(result.message);
+                }
+
             }
-            System.out.println(result.message);
         }
     }
+
     public boolean canExecute() {
         return true;
     }
