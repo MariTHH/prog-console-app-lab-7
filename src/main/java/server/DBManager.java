@@ -338,10 +338,11 @@ public class DBManager {
                     + " WHERE owner_username =?");
             statement.setString(1, username);
             statement.execute();
+            ResultSet resultSet = statement.executeQuery();
+            return !resultSet.next();
         } catch (SQLException e) {
             return false;
         }
-        return true;
     }
 
     public boolean updatePerson(int id, Person person, String username) throws SQLException, AccessDeniedException{
@@ -360,8 +361,7 @@ public class DBManager {
             return true;
         } catch (SQLException exception) {
             System.out.println("Ошибка sql");
+            return false;
         }
-
-        return false;
     }
 }
