@@ -27,8 +27,9 @@ public class PrintUniqueLocation extends Command {
             CommandResult result = requestManager.sendRequest(request);
             if (result.status) {
                 System.out.println((result.message));
-            } else
+            } else {
                 System.out.println("Ошибка");
+            }
         }
     }
 

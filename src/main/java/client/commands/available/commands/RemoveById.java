@@ -41,8 +41,10 @@ public class RemoveById extends Command {
             CommandResult result = requestManager.sendRequest(request);
             if (result.status) {
                 System.out.println((result.message));
-            } else
+            } else {
                 System.out.println("Ошибка");
+                System.out.println(result.message);
+            }
         }
     }
 

@@ -31,6 +31,9 @@ public class Clear extends Command {
                 System.out.println("Коллекция очищена");
                 System.out.println((result.message));
             }
+            else{
+                System.out.println(result.message);
+            }
         }
     }
 

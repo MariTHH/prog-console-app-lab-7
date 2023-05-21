@@ -37,8 +37,9 @@ public class Add extends Command {
             if (result.status) {
                 System.out.println((result.message));
                 System.out.println("Ваш персонаж теперь в коллекции");
-            } else
+            } else {
                 System.out.println("Ошибка");
+            }
         } else {
             Scanner sc = new Scanner(System.in);
             Person newPerson = ClientManager.getNewPerson(sc);
@@ -47,8 +48,9 @@ public class Add extends Command {
             if (result.status) {
                 System.out.println((result.message));
                 System.out.println("Ваш персонаж теперь в коллекции");
-            } else
+            } else {
                 System.out.println("Ошибка");
+            }
         }
     }
 
