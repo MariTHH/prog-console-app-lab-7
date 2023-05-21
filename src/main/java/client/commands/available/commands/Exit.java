@@ -23,7 +23,7 @@ public class Exit extends Command {
         if (args.length > 1) {
             System.out.println("Вы неправильно ввели команду");
         } else {
-            Request<?> request = new Request<String>(getName(),null,null);
+            Request<?> request = new Request<String>(getName(), null, null);
             CommandResult result = requestManager.sendRequest(request);
             if (result.status) {
                 System.out.println((result.message));
@@ -33,6 +33,7 @@ public class Exit extends Command {
 
         }
     }
+
     @Override
     public String getName() {
         return "exit";

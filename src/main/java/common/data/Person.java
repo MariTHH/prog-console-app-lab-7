@@ -57,6 +57,7 @@ public class Person implements Comparable<Person>, Serializable {
     )
     private Location location;
     private String ownerUsername;
+
     public Person(String name, Coordinates coordinates, int height, Color eyeColor, Color hairColor, Country nationality, Location location) {
         this.name = name;
         this.coordinates = coordinates;
@@ -68,7 +69,7 @@ public class Person implements Comparable<Person>, Serializable {
         this.location = location;
     }
 
-    public Person(Integer id, String name, Coordinates coordinates, int height, Color eyeColor, Color hairColor, Country nationality, Location location,String ownerUsername) {
+    public Person(Integer id, String name, Coordinates coordinates, int height, Color eyeColor, Color hairColor, Country nationality, Location location, String ownerUsername) {
         this.id = id;
         this.name = name;
         this.coordinates = coordinates;
@@ -81,11 +82,13 @@ public class Person implements Comparable<Person>, Serializable {
         this.ownerUsername = ownerUsername;
 
     }
+
     public String getOwnerUsername() {
         return ownerUsername;
     }
 
-    public Person(){}
+    public Person() {
+    }
 
     @XmlTransient
     public int getId() {

@@ -20,6 +20,7 @@ public class CountGreaterThanEyeColor extends Command {
 
     /**
      * send command and color to server
+     *
      * @param args - color
      */
     @Override

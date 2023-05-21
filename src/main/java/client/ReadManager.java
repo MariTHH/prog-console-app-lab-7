@@ -2,6 +2,7 @@ package client;
 
 import common.data.Color;
 import common.data.Country;
+
 import java.io.Console;
 
 import java.util.*;
@@ -23,10 +24,9 @@ public class ReadManager {
                 }
                 password = String.valueOf(letters);
             } else password = scanner.nextLine();
-            if (password.matches("(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[_0-9a-zA-Z!@#$%^&*]{5,25}")){
+            if (password.matches("(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[_0-9a-zA-Z!@#$%^&*]{5,25}")) {
                 return password;
-            }
-            else {
+            } else {
                 System.out.println("В пароле обязательно от 5 до 25 символов (минимум 1 цифра, 1 заглавная и 1 строчная буква латинского алфавита)");
             }
         }

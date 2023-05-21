@@ -67,7 +67,8 @@ public class MainClient {
                 try {
                     commandManager.existCommand(input);
                 } catch (Exception e) {
-                    System.out.println("Сначала авторизируйтесь");}
+                    System.out.println("Сначала авторизируйтесь");
+                }
             } while (!input.equals("exit"));
         } catch (ConnectException e) {
             System.out.println("Вы не подключены к серверу");

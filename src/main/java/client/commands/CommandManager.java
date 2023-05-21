@@ -64,7 +64,7 @@ public class CommandManager {
                 return;
             }
             Command commanda = commandMap.get(command);
-            if (requestManager.getUser()!=null || commanda.canExecute()) {
+            if (requestManager.getUser() != null || commanda.canExecute()) {
                 if (commandMap.containsKey(command)) {
                     commandMap.get(command).setArgument(argument);
                     commandMap.get(command).execute(args);

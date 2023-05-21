@@ -30,8 +30,7 @@ public class Clear extends Command {
             if (result.status) {
                 System.out.println("Коллекция очищена");
                 System.out.println((result.message));
-            }
-            else{
+            } else {
                 System.out.println(result.message);
             }
         }

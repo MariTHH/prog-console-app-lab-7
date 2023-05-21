@@ -22,7 +22,7 @@ public class Help extends Command {
         if (args.length > 1) {
             System.out.println("Проблема с аргументом, обратитесь к команде help");
         } else {
-            Request<String> request = new Request<>(getName(), null,null);
+            Request<String> request = new Request<>(getName(), null, null);
             CommandResult result = requestManager.sendRequest(request);
             if (result.status) {
                 System.out.println((result.message));

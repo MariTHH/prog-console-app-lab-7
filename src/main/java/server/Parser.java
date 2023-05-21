@@ -9,7 +9,7 @@ import java.util.Scanner;
 /**
  * Parse collection to XML and Java Object
  */
-public  class Parser {
+public class Parser {
     public Parser() {
     }
 
@@ -56,7 +56,7 @@ public  class Parser {
     public static String[] getLoginData() {
         try {
             Scanner scanner = new Scanner(new FileReader("biba"));
-            return new String[] {scanner.nextLine(), scanner.nextLine()};
+            return new String[]{scanner.nextLine(), scanner.nextLine()};
         } catch (FileNotFoundException e) {
             System.out.println("Файл не найден");
         }

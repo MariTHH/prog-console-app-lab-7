@@ -96,6 +96,7 @@ public class DBManager {
         statement.close();
         return count != 0;
     }
+
     public boolean checkUsername(String login) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(SQL_CHECK_USER1);
         statement.setString(1, login);
@@ -105,6 +106,7 @@ public class DBManager {
         statement.close();
         return count != 0;
     }
+
     public CommandResult checkLogin(Request<?> request) {
         try {
             String login = (String) request.type;
@@ -149,7 +151,8 @@ public class DBManager {
             return new CommandResult(false, "Аргумент другого типа");
         }
     }
-    public CommandResult checkRegister(Request<?> request){
+
+    public CommandResult checkRegister(Request<?> request) {
         try {
             String login = (String) request.type;
 
@@ -279,11 +282,11 @@ public class DBManager {
     }
 
     public boolean removeById(int id, String username) throws SQLException {
-        if (!existId(id)){
+        if (!existId(id)) {
             System.out.println("Данного ID не существует");
             return false;
         }
-        if (!belongsToUser(id, username)){
+        if (!belongsToUser(id, username)) {
             System.out.println("Вы не можете удалить данного персонажа");
             return false;
         }
@@ -304,7 +307,7 @@ public class DBManager {
     }
 
     public boolean belongsToUser(int id, String username) throws SQLException {
-        if (!existId(id)){
+        if (!existId(id)) {
             return false;
         }
 
@@ -317,7 +320,7 @@ public class DBManager {
         return username.equals(owner);
     }
 
-    private List<Integer> getsID (List<Map.Entry<Integer, String>> list) throws SQLException {
+    private List<Integer> getsID(List<Map.Entry<Integer, String>> list) throws SQLException {
         List<Integer> deletedID = removeAndGetIds(list);
         return deletedID;
     }
@@ -332,6 +335,7 @@ public class DBManager {
         }
         return deletedID;
     }
+
     public boolean deleteAllOwned(String username) {
         try {
             PreparedStatement statement = connection.prepareStatement("DELETE FROM " + TABLE_PERSON
@@ -345,11 +349,11 @@ public class DBManager {
         }
     }
 
-    public boolean updatePerson(int id, Person person, String username) throws SQLException, AccessDeniedException{
-        if (!existId(id)){
+    public boolean updatePerson(int id, Person person, String username) throws SQLException, AccessDeniedException {
+        if (!existId(id)) {
             return false;
         }
-       if (!belongsToUser(id, username)){
+        if (!belongsToUser(id, username)) {
             return false;
         }
         try {
