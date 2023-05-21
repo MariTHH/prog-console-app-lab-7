@@ -187,10 +187,13 @@ public class PersonCollection extends DataManager {
     public CommandResult clear(Request<?> request) {
         String username = request.user.getUsername();
         if (!dbManager.deleteAllOwned(username)) {
-            return new CommandResult(false, "ss");
+            return new CommandResult(false, "Вы не можете удалить персонажей");
+        } else if (treeSet.isEmpty()) {
+            return new CommandResult(false, "Коллекция пустая");
+        } else {
+            treeSet.removeIf(e -> e.getOwnerUsername().equals(username));
+            return new CommandResult(true, "Элементы, добавленные пользователем, удалены");
         }
-        treeSet.removeIf(e -> e.getOwnerUsername().equals(username));
-        return new CommandResult(true, "Элементы удалены");
     }
 
     /**
@@ -199,10 +202,13 @@ public class PersonCollection extends DataManager {
      * @param ID could be int
      * @return true or false
      */
-    public boolean existID(int ID) {
+    public boolean existID(int ID, String username) throws AccessDeniedException, SQLException {
         for (Person person : treeSet) {
             if (person.getId() == ID) {
-                return true;
+                boolean update = dbManager.updatePerson(person.getId(), person, username);
+                if (update) {
+                    return true;
+                }
             }
         }
         return false;
@@ -218,12 +224,15 @@ public class PersonCollection extends DataManager {
         int ID;
         try {
             ID = Integer.parseInt((String) request.type);
-            if (treeSet.stream().noneMatch(person -> person.getId() == (ID)))
+            if (treeSet.stream().noneMatch(person -> person.getId() == (ID))) {
                 return new CommandResult(false, "Персонажа с таким ID не существует");
+            }
             boolean remove = dbManager.removeById(ID, request.user.getUsername());
             if (remove) {
                 treeSet.removeIf(person -> person.getId() == (ID));
                 return new CommandResult(true, "Персонаж удален");
+            } else {
+                return new CommandResult(false, "Вы не можете удалить данного персонажа");
             }
         } catch (NumberFormatException e) {
             message = "Вы неправильно ввели ID";
@@ -250,20 +259,13 @@ public class PersonCollection extends DataManager {
         } catch (NumberFormatException e) {
             System.out.println("Рост введен некорректно");
         } catch (SQLException exception) {
+            exception.printStackTrace();
             message = "SQL ошибка на сервере";
         } catch (Exception exception) {
             message = "Аргумент другого типа";
         }
 
         return new CommandResult(true, message);
-    }
-
-    private CommandResult deleteElements(List<Integer> deletedIds) {
-        if (deletedIds.size() > 0) {
-            deletedIds.forEach(id -> treeSet.removeIf(person -> person.getId() == id));
-            return new CommandResult(true, "Персонажи удалены");
-        }
-        return new CommandResult(true, "Персонажи не были удалены из-за отсутствия прав или отсутсвия персонажей");
     }
 
     /**
@@ -357,6 +359,8 @@ public class PersonCollection extends DataManager {
                         .filter(person1 -> person1.getId() == person.getId())
                         .forEach(person1 -> person1.update(person));
                 return new CommandResult(true, "Персонаж успешно обновлен");
+            } else {
+                return new CommandResult(false, "Вы не можете изменить данного персонажа");
             }
         } catch (NumberFormatException e) {
             System.out.println("ID введен неверно");
