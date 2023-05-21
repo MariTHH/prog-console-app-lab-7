@@ -36,7 +36,7 @@ public class Update extends Command {
             } else {
                 id = Integer.parseInt(args[1]);
             }
-            Request<Integer> request = new Request<>(null, id, null);
+            Request<Integer> request = new Request<>("check_id", id, null);
             CommandResult result = requestManager.sendRequest(request);
             if (result.status) {
                 if (!ExecuteScript.getFlag()) {
@@ -52,6 +52,8 @@ public class Update extends Command {
                     System.out.println((result.message));
                 } else
                     System.out.println("Ошибка");
+            } else {
+                System.out.println("У вас нет прав на обновление персонажа или проверьте ID");
             }
         }
     }
