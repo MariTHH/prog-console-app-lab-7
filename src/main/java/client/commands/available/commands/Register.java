@@ -10,7 +10,7 @@ import common.network.Request;
 
 import java.util.Scanner;
 
-public class Register extends Login{
+public class Register extends Command {
     public Register(RequestManager requestManager) {
         super(requestManager);
     }
