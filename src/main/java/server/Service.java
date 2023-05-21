@@ -6,6 +6,8 @@ import common.network.CommandResult;
 import common.network.Request;
 
 
+import java.nio.file.AccessDeniedException;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 /**
@@ -44,6 +46,8 @@ public class Service {
         if (dbManager != null) {
             commands.put("login", dbManager::login);
             commands.put("register", dbManager::register);
+            commands.put("check_user", dbManager::checkLogin);
+            commands.put("check_register", dbManager::checkRegister);
         }
 
     }
@@ -56,7 +60,7 @@ public class Service {
      *
      * @param request request - command from client
      */
-    public CommandResult executeCommand(Request<?> request) {
+    public CommandResult executeCommand(Request<?> request) throws AccessDeniedException, SQLException {
         if (!commands.containsKey(request.command) && request.command != null)
             return new CommandResult(false, "Такой команды на сервере нет.");
         else if (request.command == null && request.personCollection != null) {
@@ -64,7 +68,13 @@ public class Service {
             return new CommandResult(true, "правда");
         } else if (request.command == null) {
             collection.setCollection(dbManager.readCollection());
-            if (collection.toHeight((int) request.type) || collection.existID((int) request.type)) {
+            if (collection.toHeight((int) request.type)) {
+                return new CommandResult(true, "правда");
+            } else {
+                return new CommandResult(false, "неправда");
+            }
+        } else if (request.command.equals("check_id")) {
+            if (collection.existID((int) request.type, request.user.getUsername())) {
                 return new CommandResult(true, "правда");
             } else {
                 return new CommandResult(false, "неправда");
