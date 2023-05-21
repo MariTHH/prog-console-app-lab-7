@@ -55,7 +55,7 @@ public class MainClient {
             boolean flag = true;
             do {
                 if (flag) {
-                    System.out.println("Введите команду:(login - для входа, register - для регистрации)");
+                    System.out.println("login - для входа, register - для регистрации");
                 } else {
                     System.out.println("Введите команду");
                 }
@@ -67,8 +67,7 @@ public class MainClient {
                 try {
                     commandManager.existCommand(input);
                 } catch (Exception e) {
-                    System.out.println("Ошибка");
-                }
+                    System.out.println("Сначала авторизируйтесь");}
             } while (!input.equals("exit"));
         } catch (ConnectException e) {
             System.out.println("Вы не подключены к серверу");
