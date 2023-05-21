@@ -18,7 +18,9 @@ public class ReadManager {
             System.out.println("Введите пароль:");
             if (console != null) {
                 char[] letters = console.readPassword();
-                if (letters == null) continue;
+                if (letters == null) {
+                    continue;
+                }
                 password = String.valueOf(letters);
             } else password = scanner.nextLine();
             if (password.matches("(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[_0-9a-zA-Z!@#$%^&*]{5,25}")){

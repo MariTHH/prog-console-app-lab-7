@@ -1,7 +1,6 @@
 package common.data;
 
 import com.sun.istack.NotNull;
-import server.GenerationId;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

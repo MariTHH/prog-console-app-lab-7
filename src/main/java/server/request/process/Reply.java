@@ -22,7 +22,7 @@ public class Reply implements Runnable {
             objectOutputStream.writeObject(result);
             objectOutputStream.flush();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            System.out.println("Ошибка");
         }
     }
 }

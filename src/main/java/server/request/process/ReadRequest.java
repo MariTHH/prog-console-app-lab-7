@@ -29,8 +29,8 @@ public class ReadRequest implements Runnable {
             System.out.println(socketChannel.getRemoteAddress() + ": " + request.command);
             CommandResult result = requestProcess.processRequest(request, requestThread);
             requestThread1.submit(new Reply(socketChannel, result));
-            //change if not works
         } catch (IOException | ClassNotFoundException exception) {
+            System.out.println("Ошибка");
         }
     }
 }

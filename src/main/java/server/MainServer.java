@@ -2,13 +2,9 @@ package server;
 
 import common.Configuration;
 import common.DataManager;
-import common.data.Person;
-import common.network.CommandResult;
-import common.network.Request;
 import server.request.process.ReadRequest;
 import server.request.process.RequestProcess;
 
-import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
@@ -48,7 +44,7 @@ public class MainServer {
             dbManager = new DBManager(Configuration.jdbcLocal, loginData[0], loginData[1]);
             dbManager.connectDB();
         } catch (Exception exception) {
-            exception.printStackTrace();
+            System.out.println("Не удалось выполнить подключение к базе данных");
             return;
         }
 
@@ -56,7 +52,7 @@ public class MainServer {
         try {
             dataManager = new PersonCollection(dbManager);
         } catch (Exception exception) {
-            exception.printStackTrace();
+            System.out.println("Ошибка");
             return;
         }
 
@@ -75,7 +71,6 @@ public class MainServer {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Выход");
-            save(dataManager, "s");
         }));
 
         Service service = new Service(dataManager, dbManager);
@@ -90,7 +85,7 @@ public class MainServer {
                 RequestProcess requestProcess = new RequestProcess(service);
                 readRequestThreadPool.submit(new ReadRequest(socketChannel, requestProcess));
             } catch (IOException exception) {
-                exception.printStackTrace();
+                System.out.println("Ошибка");
             }
         }
 
@@ -118,6 +113,7 @@ public class MainServer {
                     }
                     if (serverCommand.equals("exit")) {
                         exit.set(true);
+                        System.exit(0);
                         return;
                     } else {
                         System.out.println("Такой команды нет");

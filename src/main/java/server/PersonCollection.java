@@ -89,7 +89,6 @@ public class PersonCollection extends DataManager {
         try {
             Person person = (Person) request.type;
             return addPerson(person, request);
-            //return new CommandResult(true, "Новый элемент успешно добавлен");
         } catch (Exception exception) {
             return new CommandResult(false, "Передан аргумент другого типа");
         }
@@ -179,15 +178,16 @@ public class PersonCollection extends DataManager {
     /**
      * clears the collection
      */
-    /** public CommandResult clear(Request<?> request) {
-        treeSet.clear();
-        return new CommandResult(true, "Элементы удалены");
-    }
-    */
+    /**
+     * public CommandResult clear(Request<?> request) {
+     * treeSet.clear();
+     * return new CommandResult(true, "Элементы удалены");
+     * }
+     */
     public CommandResult clear(Request<?> request) {
         String username = request.user.getUsername();
         if (!dbManager.deleteAllOwned(username)) {
-           return new CommandResult(false,"ss");
+            return new CommandResult(false, "ss");
         }
         treeSet.removeIf(e -> e.getOwnerUsername().equals(username));
         return new CommandResult(true, "Элементы удалены");
@@ -360,10 +360,8 @@ public class PersonCollection extends DataManager {
             }
         } catch (NumberFormatException e) {
             System.out.println("ID введен неверно");
-        } catch (AccessDeniedException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (AccessDeniedException|SQLException e) {
+            System.out.println("Ошибка с бд");
         }
         return new CommandResult(true, message);
     }

@@ -52,10 +52,18 @@ public class MainClient {
                 }
             }
             String input;
+            boolean flag = true;
             do {
-                System.out.println("Введите команду: ");
+                if (flag) {
+                    System.out.println("Введите команду:(login - для входа, register - для регистрации)");
+                } else {
+                    System.out.println("Введите команду");
+                }
                 if (!scanner.hasNextLine()) return;
                 input = scanner.nextLine();
+                if (input.equals("login") || input.equals("register")) {
+                    flag = false;
+                }
                 try {
                     commandManager.existCommand(input);
                 } catch (Exception e) {

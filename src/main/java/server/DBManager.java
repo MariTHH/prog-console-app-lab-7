@@ -49,10 +49,6 @@ public class DBManager {
             TABLE_PERSON,
             NAME, COORDINATE_X, COORDINATE_Y, CREATION_DATE, HEIGHT, EYE_COLOR, HAIR_COLOR, COUNTRY,
             LOCATION_X, LOCATION_Y, LOCATION_NAME, OWNER_USERNAME, PERSON_ID);
-
-    private static final String SQL_GET_MIN_PERSON_HEIGHT = String.format("SELECT MIN(%s) FROM %s", HEIGHT, TABLE_PERSON);
-    private static final String SQL_GET_MAX_PERSON_HEIGHT = String.format("SELECT MAX(%s) FROM %s", HEIGHT, TABLE_PERSON);
-
     private static final String SQL_REMOVE_BY_ID = String.format("DELETE FROM %s WHERE %s = ?",
             TABLE_PERSON, PERSON_ID);
     private static final String SQL_GET_GREATER = String.format("SELECT %s, %s FROM %s WHERE %s > ?",
@@ -87,7 +83,6 @@ public class DBManager {
             connection = DriverManager.getConnection(url, username, password);
             System.out.println("Подключение к базе данных установлено.");
         } catch (SQLException e) {
-            e.printStackTrace();
             System.out.println("Не удалось выполнить подключение к базе данных.");
             System.exit(-1);
         }
@@ -108,7 +103,6 @@ public class DBManager {
         try {
             User user = (User) request.type;
             if (checkUser(user)) {
-                //System.out.println("Добро пожаловать");
                 return new CommandResult(true, "Добро пожаловать");
             }
             return new CommandResult(false, "Неверный логин или пароль");
@@ -232,17 +226,17 @@ public class DBManager {
             statement.setString(i, owner);
             int affectedRows = statement.executeUpdate();
             if (affectedRows == 0)
-                throw new SQLException("No rows affected");
+                throw new SQLException("Нет измененных строк");
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next())
                     person.setId(generatedKeys.getInt(PERSON_ID));
                 else
-                    throw new SQLException("No ID obtained");
+                    throw new SQLException("ID не получено");
             }
             statement.close();
             return true;
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            System.out.println("Ошибка sql");
 
         }
 
@@ -250,8 +244,12 @@ public class DBManager {
     }
 
     public boolean removeById(int id, String username) throws SQLException {
-        if (!existId(id)) ; // do exception;
-        if (!belongsToUser(id, username)) ; // do exception
+        if (!existId(id)){
+            System.out.println("Данного ID не существует");
+        }
+        if (!belongsToUser(id, username)){
+            System.out.println("Вы не можете удалить данного персонажа");
+        }
 
         PreparedStatement statement = connection.prepareStatement(SQL_REMOVE_BY_ID);
         statement.setInt(1, id);
@@ -269,7 +267,9 @@ public class DBManager {
     }
 
     public boolean belongsToUser(int id, String username) throws SQLException {
-        if (!existId(id)) return false;
+        if (!existId(id)){
+            return false;
+        }
 
         PreparedStatement statement = connection.prepareStatement(SQL_BELONGS_USER);
         statement.setInt(1, id);
@@ -330,8 +330,12 @@ public class DBManager {
     }
 
     public boolean updatePerson(int id, Person person, String username) throws SQLException, AccessDeniedException{
-        if (!existId(id)); //exception
-        if (!belongsToUser(id, username)); //exception
+        if (!existId(id)){
+            System.out.println("Данного ID не существует");
+        }
+        if (!belongsToUser(id, username)){
+            System.out.println("Вы не можете изменить этого персонажа");
+        }
 
         try {
             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_BY_ID);
@@ -341,7 +345,7 @@ public class DBManager {
             statement.close();
             return true;
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            System.out.println("Ошибка sql");
         }
 
         return false;
