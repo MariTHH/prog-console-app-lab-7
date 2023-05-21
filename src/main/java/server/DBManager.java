@@ -33,7 +33,6 @@ public class DBManager {
     private static final String LOCATION_NAME = "location_name";
     private static final String HAIR_COLOR = "hair_color";
     private static final String OWNER_USERNAME = "owner_username";
-    private static final String OWNER = "owner";
 
     private static final String SQL_ADD_USER = String.format("INSERT INTO %s (%s, %s) VALUES (?, ?)",
             TABLE_USER, USERNAME, PASSWORD);
@@ -42,7 +41,8 @@ public class DBManager {
             TABLE_USER, USERNAME);
     private static final String SQL_CHECK_USER = String.format("SELECT COUNT(*) FROM %s WHERE %s = ? AND %s = ?",
             TABLE_USER, USERNAME, PASSWORD);
-
+    private static final String SQL_CHECK_USER1 = String.format("SELECT COUNT(*) FROM %s WHERE %s = ?",
+            TABLE_USER, USERNAME);
     private static final String SQL_ADD_PERSON = String.format("INSERT INTO %s (" +
                     "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING %s",
@@ -51,8 +51,6 @@ public class DBManager {
             LOCATION_X, LOCATION_Y, LOCATION_NAME, OWNER_USERNAME, PERSON_ID);
     private static final String SQL_REMOVE_BY_ID = String.format("DELETE FROM %s WHERE %s = ?",
             TABLE_PERSON, PERSON_ID);
-    private static final String SQL_GET_GREATER = String.format("SELECT %s, %s FROM %s WHERE %s > ?",
-            PERSON_ID, OWNER_USERNAME, TABLE_PERSON, HEIGHT);
     private static final String SQL_UPDATE_BY_ID = String.format("UPDATE %s SET " +
                     "%s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?" +
                     "WHERE %s = ?",
@@ -98,6 +96,28 @@ public class DBManager {
         statement.close();
         return count != 0;
     }
+    public boolean checkUsername(String login) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(SQL_CHECK_USER1);
+        statement.setString(1, login);
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+        int count = resultSet.getInt(1);
+        statement.close();
+        return count != 0;
+    }
+    public CommandResult checkLogin(Request<?> request) {
+        try {
+            String login = (String) request.type;
+            if (checkUsername(login)) {
+                return new CommandResult(true, "Добро пожаловать");
+            }
+            return new CommandResult(false, "Неверный логин");
+        } catch (SQLException exception) {
+            return new CommandResult(false, "SQL-ошибка на сервере");
+        } catch (Exception exception) {
+            return new CommandResult(false, "Аргумент другого типа");
+        }
+    }
 
     public CommandResult login(Request<?> request) {
         try {
@@ -105,7 +125,7 @@ public class DBManager {
             if (checkUser(user)) {
                 return new CommandResult(true, "Добро пожаловать");
             }
-            return new CommandResult(false, "Неверный логин или пароль");
+            return new CommandResult(false, "Неверный пароль");
         } catch (SQLException exception) {
             return new CommandResult(false, "SQL-ошибка на сервере");
         } catch (Exception exception) {
@@ -121,6 +141,21 @@ public class DBManager {
                 registerUser(user);
                 return new CommandResult(true,
                         "Добро пожаловать");
+            }
+            return new CommandResult(false, "Такое имя уже используется");
+        } catch (SQLException exception) {
+            return new CommandResult(false, "SQL-ошибка на сервере");
+        } catch (Exception exception) {
+            return new CommandResult(false, "Аргумент другого типа");
+        }
+    }
+    public CommandResult checkRegister(Request<?> request){
+        try {
+            String login = (String) request.type;
+
+            if (!userExists(login)) {
+                return new CommandResult(true,
+                        "Имя пользователя доступно");
             }
             return new CommandResult(false, "Такое имя уже используется");
         } catch (SQLException exception) {
@@ -246,9 +281,11 @@ public class DBManager {
     public boolean removeById(int id, String username) throws SQLException {
         if (!existId(id)){
             System.out.println("Данного ID не существует");
+            return false;
         }
         if (!belongsToUser(id, username)){
             System.out.println("Вы не можете удалить данного персонажа");
+            return false;
         }
 
         PreparedStatement statement = connection.prepareStatement(SQL_REMOVE_BY_ID);
@@ -280,11 +317,6 @@ public class DBManager {
         return username.equals(owner);
     }
 
-    public List<Integer> removeGreater(int height) throws SQLException {
-        List<Map.Entry<Integer, String>> list = getIdAndUser(SQL_GET_GREATER, height);
-        return getsID(list);
-    }
-
     private List<Integer> getsID (List<Map.Entry<Integer, String>> list) throws SQLException {
         List<Integer> deletedID = removeAndGetIds(list);
         return deletedID;
@@ -293,29 +325,12 @@ public class DBManager {
     private List<Integer> removeAndGetIds(List<Map.Entry<Integer, String>> list) throws SQLException {
         List<Integer> deletedID = new ArrayList<>();
         for (Map.Entry<Integer, String> person : list) {
-            boolean status = removeById(person.getKey(), person.getValue());
+            boolean status = removeById(person.getKey(), username);
             if (status) {
                 deletedID.add(person.getKey());
             }
         }
         return deletedID;
-    }
-
-    public List<Map.Entry<Integer, String>> getIdAndUser(String SQL, Object arg) throws SQLException {
-        List<Map.Entry<Integer, String>> list = new ArrayList<>();
-        PreparedStatement statement = connection.prepareStatement(SQL);
-        if (arg instanceof String) {
-            statement.setString(1, (String) arg);
-        } else if (arg instanceof Integer) {
-            statement.setInt(1, (Integer) arg);
-        }
-        ResultSet resultSet = statement.executeQuery();
-        while (resultSet.next()) {
-            Integer id = resultSet.getInt(PERSON_ID);
-            String owner = resultSet.getString(OWNER_USERNAME);
-            list.add(new AbstractMap.SimpleEntry<>(id, owner));
-        }
-        return list;
     }
     public boolean deleteAllOwned(String username) {
         try {
@@ -331,12 +346,11 @@ public class DBManager {
 
     public boolean updatePerson(int id, Person person, String username) throws SQLException, AccessDeniedException{
         if (!existId(id)){
-            System.out.println("Данного ID не существует");
+            return false;
         }
-        if (!belongsToUser(id, username)){
-            System.out.println("Вы не можете изменить этого персонажа");
+       if (!belongsToUser(id, username)){
+            return false;
         }
-
         try {
             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_BY_ID);
             int i = prepareStatement(statement, person, false);
