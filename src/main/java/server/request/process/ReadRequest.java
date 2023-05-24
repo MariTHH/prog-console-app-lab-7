@@ -9,6 +9,9 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Class read client requests
+ */
 public class ReadRequest implements Runnable {
     private SocketChannel socketChannel;
     private RequestProcess requestProcess;
@@ -20,6 +23,9 @@ public class ReadRequest implements Runnable {
         this.requestProcess = requestProcess;
     }
 
+    /**
+     * read request with command
+     */
     @Override
     public void run() {
         Request<?> request;

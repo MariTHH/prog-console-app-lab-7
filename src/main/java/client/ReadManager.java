@@ -12,6 +12,12 @@ import java.util.*;
  */
 public class ReadManager {
 
+    /**
+     * method checks if the password is entered correctly, it contains letters and numbers
+     *
+     * @param scanner
+     * @return password
+     */
     public static String takePassword(Scanner scanner) {
         String password;
         Console console = System.console();

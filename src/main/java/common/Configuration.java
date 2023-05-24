@@ -2,6 +2,7 @@ package common;
 
 /**
  * ip and port configuration if they will not be entered
+ * algorithm of hash
  */
 public class Configuration {
     public static final String IP = "localhost";

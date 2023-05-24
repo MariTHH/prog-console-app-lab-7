@@ -11,6 +11,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+/**
+ * Class for requests
+ */
 public class RequestProcess {
     private Service service;
 
@@ -26,11 +29,15 @@ public class RequestProcess {
                 try {
                     return commandResultFuture.get();
                 } catch (InterruptedException | ExecutionException exception) {
+                    System.out.println("Ошибка");
                 }
             }
         }
     }
 
+    /**
+     * class for command executing
+     */
     private class RequestExecutor implements Callable<CommandResult> {
 
         private Request<?> request;
@@ -39,6 +46,11 @@ public class RequestProcess {
             this.request = request;
         }
 
+        /**
+         * execute command
+         *
+         * @return result of command
+         */
         @Override
         public CommandResult call() throws AccessDeniedException, SQLException {
             CommandResult result = service.executeCommand(request);

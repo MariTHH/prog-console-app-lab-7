@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.channels.SocketChannel;
 
+/**
+ * Class ask for reply to client
+ */
 public class Reply implements Runnable {
     private SocketChannel socketChannel;
     private CommandResult result;
@@ -15,6 +18,9 @@ public class Reply implements Runnable {
         this.result = result;
     }
 
+    /**
+     * pass result to client
+     */
     @Override
     public void run() {
         try {
