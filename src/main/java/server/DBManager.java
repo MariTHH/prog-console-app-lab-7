@@ -7,10 +7,11 @@ import common.network.Request;
 import java.nio.file.AccessDeniedException;
 import java.sql.*;
 import java.time.ZonedDateTime;
-import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Responsible for interacting with databases
+ */
 public class DBManager {
     private static final String TABLE_USER = "\"table_user\"";
     private static final String TABLE_PERSON = "person";
@@ -34,8 +35,12 @@ public class DBManager {
     private static final String HAIR_COLOR = "hair_color";
     private static final String OWNER_USERNAME = "owner_username";
 
+    private static final String SQL_CREATE_PERSON = String.format("CREATE TABLE %s ( id SERIAL PRIMARY KEY, name TEXT, coordinate_x TEXT," +
+            "coordinate_Y TEXT, creation_date TIMESTAMP, height INTEGER, eye_color TEXT, hair_color TEXT, location_x TEXT," +
+            "location_y TEXT, location_name text, nationality TEXT, owner_username TEXT);", TABLE_PERSON);
     private static final String SQL_ADD_USER = String.format("INSERT INTO %s (%s, %s) VALUES (?, ?)",
             TABLE_USER, USERNAME, PASSWORD);
+    private static final String SQL_CREATE_USER = String.format("CREATE TABLE %s ( id SERIAL PRIMARY KEY, username TEXT, password TEXT);", TABLE_USER);
 
     private static final String SQL_FIND_USERNAME = String.format("SELECT COUNT(*) FROM %s WHERE %s = ?",
             TABLE_USER, USERNAME);
@@ -86,6 +91,11 @@ public class DBManager {
         }
     }
 
+    /**
+     * Checks that the user is correct
+     *
+     * @param user - name and password
+     */
     public boolean checkUser(User user) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(SQL_CHECK_USER);
         statement.setString(1, user.getUsername());
@@ -97,16 +107,34 @@ public class DBManager {
         return count != 0;
     }
 
+    /**
+     * Checks that the username is correct
+     *
+     * @param login - username
+     */
     public boolean checkUsername(String login) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(SQL_CHECK_USER1);
-        statement.setString(1, login);
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.next();
-        int count = resultSet.getInt(1);
-        statement.close();
-        return count != 0;
+        try {
+            PreparedStatement statement = connection.prepareStatement(SQL_CHECK_USER1);
+            statement.setString(1, login);
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            int count = resultSet.getInt(1);
+            statement.close();
+            return count != 0;
+        } catch (SQLException e) {
+            PreparedStatement statement = connection.prepareStatement(SQL_CREATE_USER);
+            statement.executeUpdate();
+            statement.close();
+        }
+        return true;
     }
 
+    /**
+     * Checks that the login is correct
+     *
+     * @param request - login
+     * @return command result
+     */
     public CommandResult checkLogin(Request<?> request) {
         try {
             String login = (String) request.type;
@@ -121,6 +149,12 @@ public class DBManager {
         }
     }
 
+    /**
+     * Login user
+     *
+     * @param request - user - name and password
+     * @return command result
+     */
     public CommandResult login(Request<?> request) {
         try {
             User user = (User) request.type;
@@ -135,6 +169,12 @@ public class DBManager {
         }
     }
 
+    /**
+     * Register user
+     *
+     * @param request - username and password
+     * @return command result
+     */
     public CommandResult register(Request<?> request) {
         try {
             User user = (User) request.type;
@@ -152,7 +192,13 @@ public class DBManager {
         }
     }
 
-    public CommandResult checkRegister(Request<?> request) {
+    /**
+     * check username - free or not, create table user if it's not
+     *
+     * @param request - username
+     * @return command result
+     */
+    public CommandResult checkRegister(Request<?> request) throws SQLException {
         try {
             String login = (String) request.type;
 
@@ -162,12 +208,21 @@ public class DBManager {
             }
             return new CommandResult(false, "Такое имя уже используется");
         } catch (SQLException exception) {
-            return new CommandResult(false, "SQL-ошибка на сервере");
+            PreparedStatement statement = connection.prepareStatement(SQL_CREATE_USER);
+            statement.executeUpdate();
+            statement.close();
+            return new CommandResult(true, "Имя пользователя доступно");
         } catch (Exception exception) {
             return new CommandResult(false, "Аргумент другого типа");
         }
     }
 
+    /**
+     * check exist user or not with select
+     *
+     * @param username name of user
+     * @return true or false
+     */
     public boolean userExists(String username) throws SQLException {
         System.out.println(SQL_FIND_USERNAME);
         PreparedStatement statement = connection.prepareStatement(SQL_FIND_USERNAME);
@@ -179,6 +234,11 @@ public class DBManager {
         return count != 0;
     }
 
+    /**
+     * add user to db
+     *
+     * @param user - name and password
+     */
     public void registerUser(User user) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(SQL_ADD_USER);
         statement.setString(1, user.getUsername());
@@ -187,7 +247,12 @@ public class DBManager {
         statement.close();
     }
 
-    public ConcurrentSkipListSet<Person> readCollection() {
+    /**
+     * read collection from db, create table person if it's not
+     *
+     * @return collection
+     */
+    public ConcurrentSkipListSet<Person> readCollection() throws SQLException {
         ConcurrentSkipListSet<Person> collection = new ConcurrentSkipListSet<>();
         try {
             PreparedStatement statement = connection.prepareStatement(SQL_GET_PERSON);
@@ -201,14 +266,20 @@ public class DBManager {
             statement.close();
             System.out.println("Коллекция загружена из базы данных");
         } catch (SQLException exception) {
-            System.out.println("Ошибка при загрузке коллекции");
-            exception.printStackTrace();
-            AtomicBoolean atomicBoolean = new AtomicBoolean(false);
-            atomicBoolean.set(true);
+            PreparedStatement statement = connection.prepareStatement(SQL_CREATE_PERSON);
+            statement.executeUpdate();
+            statement.close();
+            return collection;
         }
         return collection;
     }
 
+    /**
+     * get person from select
+     *
+     * @param resultSet - person characteristics
+     * @return person
+     */
     private Person getPersonFromResult(ResultSet resultSet) throws SQLException {
         return new Person(
                 resultSet.getInt(PERSON_ID),
@@ -231,6 +302,12 @@ public class DBManager {
         );
     }
 
+    /**
+     * change person
+     *
+     * @param person     - our person
+     * @param changeDate - now
+     */
     private int prepareStatement(PreparedStatement statement, Person person, boolean changeDate) throws SQLException {
         Coordinates coordinates = person.getCoordinates();
         ZonedDateTime creationDate = person.getCreationDate();
@@ -256,6 +333,13 @@ public class DBManager {
         return i;
     }
 
+    /**
+     * add person to db
+     *
+     * @param person - our person
+     * @param owner  - owner name
+     * @return true or false
+     */
     public boolean addPerson(Person person, String owner) {
         try {
             PreparedStatement statement = connection.prepareStatement(SQL_ADD_PERSON,
@@ -281,6 +365,13 @@ public class DBManager {
         return false;
     }
 
+    /**
+     * remove person by id and check owner name
+     *
+     * @param id       - person id
+     * @param username - name of user
+     * @return true or false
+     */
     public boolean removeById(int id, String username) throws SQLException {
         if (!existId(id)) {
             System.out.println("Данного ID не существует");
@@ -298,6 +389,12 @@ public class DBManager {
         return true;
     }
 
+    /**
+     * checks the existence of the id
+     *
+     * @param id - person id
+     * @return true or false
+     */
     public boolean existId(int id) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(SQL_ID_EXIST);
         statement.setInt(1, id);
@@ -306,6 +403,13 @@ public class DBManager {
         return resultSet.getInt(1) != 0;
     }
 
+    /**
+     * Checks if the user can change the person
+     *
+     * @param id       - person id
+     * @param username - name of user
+     * @return true or false
+     */
     public boolean belongsToUser(int id, String username) throws SQLException {
         if (!existId(id)) {
             return false;
@@ -320,22 +424,12 @@ public class DBManager {
         return username.equals(owner);
     }
 
-    private List<Integer> getsID(List<Map.Entry<Integer, String>> list) throws SQLException {
-        List<Integer> deletedID = removeAndGetIds(list);
-        return deletedID;
-    }
-
-    private List<Integer> removeAndGetIds(List<Map.Entry<Integer, String>> list) throws SQLException {
-        List<Integer> deletedID = new ArrayList<>();
-        for (Map.Entry<Integer, String> person : list) {
-            boolean status = removeById(person.getKey(), username);
-            if (status) {
-                deletedID.add(person.getKey());
-            }
-        }
-        return deletedID;
-    }
-
+    /**
+     * delete person with specific owner name
+     *
+     * @param username - name of user
+     * @return true or false
+     */
     public boolean deleteAllOwned(String username) {
         try {
             PreparedStatement statement = connection.prepareStatement("DELETE FROM " + TABLE_PERSON
@@ -349,6 +443,14 @@ public class DBManager {
         }
     }
 
+    /**
+     * update person if id exist and user can change this person
+     *
+     * @param id       - person id
+     * @param person   - this person
+     * @param username - name of user
+     * @return true or false
+     */
     public boolean updatePerson(int id, Person person, String username) throws SQLException, AccessDeniedException {
         if (!existId(id)) {
             return false;
