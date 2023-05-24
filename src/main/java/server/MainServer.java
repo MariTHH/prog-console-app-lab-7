@@ -22,7 +22,7 @@ public class MainServer {
     private static final ExecutorService readRequestThreadPool = Executors.newCachedThreadPool();
 
     /**
-     * Start server, connect to the client and get requests with a collection and commands, execute them
+     * Start server, connect to the client and get requests with commands, execute them
      *
      * @param args - port
      */
@@ -53,6 +53,7 @@ public class MainServer {
             dataManager = new PersonCollection(dbManager);
         } catch (Exception exception) {
             System.out.println("Ошибка");
+            exception.printStackTrace();
             return;
         }
 

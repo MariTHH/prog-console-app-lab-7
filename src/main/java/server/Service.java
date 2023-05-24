@@ -55,8 +55,8 @@ public class Service {
     /**
      * check if there is a command on the server and execute it
      * If we pass a collection, we save it
-     * if the command is null and the collection is not passed,
-     * then check the parameters for the commands update add_if_max add_if_min
+     * if the command is null, we load collection from db and check height
+     * if command "check_id" we check existence of id
      *
      * @param request request - command from client
      */

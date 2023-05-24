@@ -34,7 +34,7 @@ public class PersonCollection extends DataManager {
         this.parser = parser;
     }
 
-    public PersonCollection(DBManager dbManager) {
+    public PersonCollection(DBManager dbManager) throws SQLException {
         this.dbManager = dbManager;
         this.parser = new Parser();
 
@@ -54,7 +54,10 @@ public class PersonCollection extends DataManager {
         setCollection(request);
     }
 
-    public void loadCollectionFromDB() {
+    /**
+     * upload collection from db
+     */
+    public void loadCollectionFromDB() throws SQLException {
         setCollection(dbManager.readCollection());
     }
 
@@ -94,6 +97,13 @@ public class PersonCollection extends DataManager {
         }
     }
 
+    /**
+     * add person to db with owner name
+     *
+     * @param person  - person from client
+     * @param request - username
+     * @return command result
+     */
     private CommandResult addPerson(Person person, Request<?> request) throws SQLException {
         boolean ok = dbManager.addPerson(person, request.user.getUsername());
         if (ok) {
@@ -135,17 +145,13 @@ public class PersonCollection extends DataManager {
     public boolean toHeight(int height_int) {
         boolean flag = true;
         for (Person person : treeSet) {
-            if (height_int > person.getHeight()) {
-                flag = true;
-            } else {
-                flag = false;
-            }
+            flag = height_int > person.getHeight();
         }
         return flag;
     }
 
     /**
-     * add person to tree set
+     * add person to tree set if it higher
      *
      * @param request - person which client create
      */
@@ -160,7 +166,7 @@ public class PersonCollection extends DataManager {
     }
 
     /**
-     * add person to tree set
+     * add person to tree set if it lower
      *
      * @param request - person which client create
      */
@@ -174,15 +180,10 @@ public class PersonCollection extends DataManager {
         }
     }
 
-
     /**
-     * clears the collection
-     */
-    /**
-     * public CommandResult clear(Request<?> request) {
-     * treeSet.clear();
-     * return new CommandResult(true, "Элементы удалены");
-     * }
+     * clear collection and ыhecks who the user can delete
+     *
+     * @param request - username
      */
     public CommandResult clear(Request<?> request) {
         String username = request.user.getUsername();
@@ -215,12 +216,12 @@ public class PersonCollection extends DataManager {
     }
 
     /**
-     * check if the character exists, and if so, remove it from the tree set
+     * check if the character exists and user can delete it, and if so, remove it from the tree set and db
      *
      * @param request - id which client entered
      */
     public CommandResult remove_by_id(Request<?> request) {
-        String message = null;
+        String message;
         int ID;
         try {
             ID = Integer.parseInt((String) request.type);
@@ -244,7 +245,8 @@ public class PersonCollection extends DataManager {
 
 
     /**
-     * removes the highest person
+     * removes the highest person than number which client entered,
+     * if user can delete this person
      */
     public CommandResult removeGreater(Request<?> request) {
         String message = null;
@@ -352,7 +354,7 @@ public class PersonCollection extends DataManager {
 
     /**
      * change the parameters of the character with the id entered by the client,
-     * check if such a character exists
+     * check if such a character exists and if user can change person
      */
     public CommandResult update(Request<?> request) {
         String message = null;

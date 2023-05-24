@@ -53,6 +53,11 @@ public class Parser {
         }
     }
 
+    /**
+     * get name and password for db
+     *
+     * @return string[] with data
+     */
     public static String[] getLoginData() {
         try {
             Scanner scanner = new Scanner(new FileReader("biba"));
