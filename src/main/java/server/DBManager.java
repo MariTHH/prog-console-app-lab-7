@@ -144,7 +144,7 @@ public class DBManager {
             return new CommandResult(false, "Неверный логин");
         } catch (SQLException exception) {
             return new CommandResult(false, "SQL-ошибка на сервере");
-        } catch (Exception exception) {
+        } catch (IllegalArgumentException exception) {
             return new CommandResult(false, "Аргумент другого типа");
         }
     }
