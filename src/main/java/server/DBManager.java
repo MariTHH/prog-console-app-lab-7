@@ -1,5 +1,6 @@
 package server;
 
+import client.commands.available.commands.Login;
 import common.data.*;
 import common.network.CommandResult;
 import common.network.Request;
@@ -8,6 +9,7 @@ import java.nio.file.AccessDeniedException;
 import java.sql.*;
 import java.time.ZonedDateTime;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Responsible for interacting with databases
@@ -263,7 +265,7 @@ public class DBManager {
             }
 
             statement.close();
-            System.out.println("Коллекция загружена из базы данных");
+            MainServer.logger.info("Коллекция загружена из базы данных");
         } catch (SQLException exception) {
             PreparedStatement statement = connection.prepareStatement(SQL_CREATE_PERSON);
             statement.executeUpdate();
@@ -358,7 +360,7 @@ public class DBManager {
             statement.close();
             return true;
         } catch (SQLException exception) {
-            System.out.println("Ошибка sql");
+           MainServer.logger.error("Ошибка sql");
 
         }
 
@@ -374,11 +376,11 @@ public class DBManager {
      */
     public boolean removeById(int id, String username) throws SQLException {
         if (!existId(id)) {
-            System.out.println("Данного ID не существует");
+            MainServer.logger.warn("Данного ID не существует");
             return false;
         }
         if (!belongsToUser(id, username)) {
-            System.out.println("Вы не можете удалить данного персонажа");
+            MainServer.logger.warn("Вы не можете удалить данного персонажа");
             return false;
         }
 
@@ -466,7 +468,7 @@ public class DBManager {
             statement.close();
             return true;
         } catch (SQLException exception) {
-            System.out.println("Ошибка sql");
+            MainServer.logger.error("Ошибка sql");
             return false;
         }
     }
