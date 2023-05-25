@@ -20,7 +20,7 @@ public abstract class DataManager {
     public abstract CommandResult info(Request<?> request);
 
     public abstract CommandResult help(Request<?> request);
-    public abstract CommandResult exit(Request<?> request);
+    public abstract CommandResult exit();
 
     public abstract CommandResult countEyeColor(Request<?> request);
 
