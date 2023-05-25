@@ -315,21 +315,22 @@ public class DBManager {
         Color hairColor = person.getHairColor();
         Location location = person.getLocation();
 
-        int i = 1;
-        statement.setString(i++, person.getName());
-        statement.setLong(i++, coordinates.getX());
-        statement.setInt(i++, coordinates.getY());
-        if (changeDate)
-            statement.setTimestamp(i++, Timestamp.from(creationDate.toInstant()));
-        statement.setInt(i++, person.getHeight());
-        statement.setString(i++, eyeColor.name());
-        statement.setString(i++, hairColor.name());
-        statement.setString(i++, nationality.name());
-        statement.setDouble(i++, location.getX());
-        statement.setFloat(i++, location.getY());
-        statement.setString(i++, location.getLocationName());
+        int num_param =1;
+        statement.setString(num_param++, person.getName());
+        statement.setLong(num_param++, coordinates.getX());
+        statement.setInt(num_param++, coordinates.getY());
+        if (changeDate) {
+            statement.setTimestamp(num_param++, Timestamp.from(creationDate.toInstant()));
+        }
+        statement.setInt(num_param++, person.getHeight());
+        statement.setString(num_param++, eyeColor.name());
+        statement.setString(num_param++, hairColor.name());
+        statement.setString(num_param++, nationality.name());
+        statement.setDouble(num_param++, location.getX());
+        statement.setFloat(num_param++, location.getY());
+        statement.setString(num_param++, location.getLocationName());
 
-        return i;
+        return num_param;
     }
 
     /**
