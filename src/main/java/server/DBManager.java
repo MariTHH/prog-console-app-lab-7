@@ -126,7 +126,6 @@ public class DBManager {
             statement.close();
             return false;
         }
-        return true;
     }
 
     /**
