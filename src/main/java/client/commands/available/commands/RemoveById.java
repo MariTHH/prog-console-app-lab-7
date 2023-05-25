@@ -1,5 +1,6 @@
 package client.commands.available.commands;
 
+import client.MainClient;
 import client.RequestManager;
 import client.commands.Command;
 import common.network.CommandResult;
@@ -28,11 +29,11 @@ public class RemoveById extends Command {
     public void execute(String[] args) {
         String id;
         if (args.length > 2) {
-            System.out.println("Вы неправильно ввели команду");
+            MainClient.logger.warn("Вы неправильно ввели команду");
         } else {
             if (args.length == 1) {
                 Scanner scanner = new Scanner(System.in);
-                System.out.println("Введите ID");
+                MainClient.logger.info("Введите ID");
                 id = scanner.nextLine();
             } else {
                 id = args[1];
@@ -42,7 +43,7 @@ public class RemoveById extends Command {
             if (result.status) {
                 System.out.println((result.message));
             } else {
-                System.out.println("Ошибка");
+                MainClient.logger.warn("Ошибка");
                 System.out.println(result.message);
             }
         }

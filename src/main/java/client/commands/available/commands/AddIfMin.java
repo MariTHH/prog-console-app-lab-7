@@ -1,6 +1,7 @@
 package client.commands.available.commands;
 
 import client.ClientManager;
+import client.MainClient;
 import client.RequestManager;
 import client.commands.Command;
 import common.data.Person;
@@ -31,7 +32,7 @@ public class AddIfMin extends Command {
         Person newPerson;
         try {
             if (args.length > 2) {
-                System.out.println("Вы неправильно ввели команду");
+                MainClient.logger.info("Вы неправильно ввели команду");
             } else {
                 height = Integer.parseInt(args[1]);
                 Request<Integer> request = new Request<>(null, height, null);
@@ -50,15 +51,15 @@ public class AddIfMin extends Command {
 
                     if (result1.status) {
                         System.out.println((result.message));
-                        System.out.println("Ваш персонаж теперь в коллекции");
+                        MainClient.logger.info("Ваш персонаж теперь в коллекции");
                     } else
-                        System.out.println("Ошибка");
+                        MainClient.logger.warn("Ошибка");
                 } else {
-                    System.out.println("Ваш персонаж не самый низкий!!");
+                    MainClient.logger.warn("Ваш персонаж не самый низкий!!");
                 }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Недостаточно аргументов, обратитесь к команде help");
+            MainClient.logger.warn("Недостаточно аргументов, обратитесь к команде help");
         }
     }
 

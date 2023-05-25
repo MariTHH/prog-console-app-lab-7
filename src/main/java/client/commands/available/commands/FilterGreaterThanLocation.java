@@ -1,5 +1,6 @@
 package client.commands.available.commands;
 
+import client.MainClient;
 import client.RequestManager;
 import client.commands.Command;
 import common.network.CommandResult;
@@ -25,14 +26,14 @@ public class FilterGreaterThanLocation extends Command {
     @Override
     public void execute(String[] args) {
         if (args.length != 2) {
-            System.out.println("Вы неправильно ввели команду");
+            MainClient.logger.warn("Вы неправильно ввели команду");
         } else {
             Request<String> request = new Request<>(getName(), args[1], null);
             CommandResult result = requestManager.sendRequest(request);
             if (result.status) {
                 System.out.println((result.message));
             } else
-                System.out.println("Ошибка");
+                MainClient.logger.warn("Ошибка");
         }
     }
 

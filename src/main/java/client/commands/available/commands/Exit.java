@@ -1,5 +1,6 @@
 package client.commands.available.commands;
 
+import client.MainClient;
 import client.RequestManager;
 import client.commands.Command;
 import common.network.CommandResult;
@@ -11,8 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * exit : terminate the program (without saving to a file)
  */
 public class Exit extends Command {
-    public Exit(RequestManager requestManager) {
-        super(requestManager);
+    public Exit() {
+        super();
     }
 
     /**
@@ -21,14 +22,14 @@ public class Exit extends Command {
     @Override
     public void execute(String[] args) {
         if (args.length > 1) {
-            System.out.println("Вы неправильно ввели команду");
+            MainClient.logger.warn("Вы неправильно ввели команду");
         } else {
             Request<?> request = new Request<String>(getName(), null, null);
             CommandResult result = requestManager.sendRequest(request);
             if (result.status) {
                 System.out.println((result.message));
             } else {
-                System.out.println("Ошибка");
+                MainClient.logger.warn("Ошибка");
             }
 
         }

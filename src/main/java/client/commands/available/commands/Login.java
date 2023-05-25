@@ -1,5 +1,6 @@
 package client.commands.available.commands;
 
+import client.MainClient;
 import client.ReadManager;
 import client.RequestManager;
 import client.commands.Command;
@@ -23,13 +24,13 @@ public class Login extends Command {
 
     @Override
     public String getDescription() {
-        return "проверка пользователя";
+        return "login: авторизация пользователя";
     }
 
     @Override
     public void execute(String[] args) {
         if (args.length > 1) {
-            System.out.println("Вы неправильно ввели команду");
+            MainClient.logger.warn("Вы неправильно ввели команду");
         } else {
             boolean flag = false;
             while (!flag) {

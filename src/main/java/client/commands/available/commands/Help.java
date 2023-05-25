@@ -1,5 +1,6 @@
 package client.commands.available.commands;
 
+import client.MainClient;
 import client.RequestManager;
 import client.commands.Command;
 import common.network.CommandResult;
@@ -20,14 +21,14 @@ public class Help extends Command {
     @Override
     public void execute(String[] args) {
         if (args.length > 1) {
-            System.out.println("Проблема с аргументом, обратитесь к команде help");
+            MainClient.logger.warn("Проблема с аргументом, обратитесь к команде help");
         } else {
             Request<String> request = new Request<>(getName(), null, null);
             CommandResult result = requestManager.sendRequest(request);
             if (result.status) {
                 System.out.println((result.message));
             } else
-                System.out.println("Ошибка");
+                MainClient.logger.warn("Ошибка");
         }
     }
 

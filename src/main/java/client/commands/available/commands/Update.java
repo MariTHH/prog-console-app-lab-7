@@ -1,6 +1,7 @@
 package client.commands.available.commands;
 
 import client.ClientManager;
+import client.MainClient;
 import client.RequestManager;
 import client.commands.Command;
 import common.data.Person;
@@ -27,11 +28,11 @@ public class Update extends Command {
         int id = 0;
         Person person1;
         if (args.length > 2) {
-            System.out.println("Вы неправильно ввели команду");
+            MainClient.logger.warn("Вы неправильно ввели команду");
         } else {
             if (ExecuteScript.getFlag()) {
                 Scanner scanner = new Scanner(System.in);
-                System.out.println("Введите ID");
+                MainClient.logger.info("Введите ID");
                 id = Integer.parseInt(scanner.nextLine());
             } else {
                 id = Integer.parseInt(args[1]);
@@ -51,9 +52,9 @@ public class Update extends Command {
                 if (result1.status) {
                     System.out.println((result.message));
                 } else
-                    System.out.println("Ошибка");
+                    MainClient.logger.warn("Ошибка");
             } else {
-                System.out.println("У вас нет прав на обновление персонажа или проверьте ID");
+                MainClient.logger.warn("У вас нет прав на обновление персонажа или проверьте ID");
             }
         }
     }
