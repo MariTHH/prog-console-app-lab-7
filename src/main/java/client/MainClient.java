@@ -3,6 +3,8 @@ package client;
 import client.commands.CommandManager;
 import common.Configuration;
 import common.network.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import server.PersonCollection;
 
 import javax.xml.bind.JAXBException;
@@ -17,6 +19,7 @@ import static server.Parser.convertToJavaObject;
  */
 public class MainClient {
     private static int port = Configuration.PORT;
+    public static final Logger logger = LoggerFactory.getLogger("client.logger");
 
     /**
      * Start client, send collection and commands to server
@@ -28,14 +31,14 @@ public class MainClient {
             try {
                 port = Integer.parseInt(args[0]);
             } catch (Exception exception) {
-                System.out.println("Не получается спарсить порт.");
+                MainClient.logger.error("Не получается спарсить порт.");
             }
         }
         try {
             RequestManager requestManager = new RequestManager(port);
             Scanner scanner = new Scanner(System.in);
             CommandManager commandManager = new CommandManager(requestManager);
-            System.out.println("Клиент запущен! Порт: " + port);
+            MainClient.logger.info("Клиент запущен! Порт: " + port);
             PersonCollection collection = new PersonCollection();
 
             if (args.length == 2) {
@@ -55,9 +58,9 @@ public class MainClient {
             boolean flag = true;
             do {
                 if (flag) {
-                    System.out.println("login - для входа, register - для регистрации");
+                    MainClient.logger.info("login - для входа, register - для регистрации");
                 } else {
-                    System.out.println("Введите команду");
+                    MainClient.logger.info("Введите команду");
                 }
                 if (!scanner.hasNextLine()) return;
                 input = scanner.nextLine();
@@ -67,11 +70,11 @@ public class MainClient {
                 try {
                     commandManager.existCommand(input);
                 } catch (Exception e) {
-                    System.out.println("Сначала авторизируйтесь");
+                    MainClient.logger.info("Сначала авторизируйтесь");
                 }
             } while (!input.equals("exit"));
         } catch (ConnectException e) {
-            System.out.println("Вы не подключены к серверу");
+            MainClient.logger.warn("Вы не подключены к серверу");
         }
     }
 }

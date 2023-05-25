@@ -1,5 +1,7 @@
 package server;
 
+
+import client.commands.available.commands.Exit;
 import common.Configuration;
 import common.DataManager;
 import server.request.process.ReadRequest;
@@ -7,17 +9,25 @@ import server.request.process.RequestProcess;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * The class accepts requests from the client, connects to it, and starts executing commands
  */
 public class MainServer {
+    public static final Logger logger = LoggerFactory.getLogger("server.logger");
     private static int port = Configuration.PORT;
     private static final ExecutorService readRequestThreadPool = Executors.newCachedThreadPool();
 
@@ -27,24 +37,22 @@ public class MainServer {
      * @param args - port
      */
     public static void main(String[] args) {
+        MainServer.logger.info("The program started.");
         if (args.length == 1) {
             try {
                 port = Integer.parseInt(args[0]);
             } catch (Exception exception) {
-                System.out.println("Не получается спарсить порт. Используется " + port);
+                MainServer.logger.error("Не получается спарсить порт");
             }
         }
         String[] loginData = Parser.getLoginData();
-        if (loginData == null) {
-            return;
-        }
 
         DBManager dbManager;
         try {
             dbManager = new DBManager(Configuration.jdbcLocal, loginData[0], loginData[1]);
             dbManager.connectDB();
         } catch (Exception exception) {
-            System.out.println("Не удалось выполнить подключение к базе данных");
+            MainServer.logger.error("Не удалось выполнить подключение к базе данных");
             return;
         }
 
@@ -52,8 +60,7 @@ public class MainServer {
         try {
             dataManager = new PersonCollection(dbManager);
         } catch (Exception exception) {
-            System.out.println("Ошибка");
-            exception.printStackTrace();
+            MainServer.logger.warn("Ошибка во время подключения к бд");
             return;
         }
 
@@ -63,21 +70,16 @@ public class MainServer {
             serverSocketChannel.bind(new InetSocketAddress(port));
             serverSocketChannel.configureBlocking(false);
 
-            System.out.println("Сервер запущен. Порт: " + port);
+            MainServer.logger.info("Сервер запущен. Порт: " + port);
         } catch (IOException exception) {
-            System.out.println("Ошибка запуска сервера!");
-            System.out.println(exception.getMessage());
+            MainServer.logger.warn("Ошибка запуска сервера!");
             return;
         }
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Выход");
-        }));
 
         Service service = new Service(dataManager, dbManager);
 
         AtomicBoolean exit = new AtomicBoolean(false);
-        getUserInputHandler(dataManager, exit).start();
+        getUserInputHandler(exit).start();
 
         while (!exit.get()) {
             try {
@@ -85,19 +87,16 @@ public class MainServer {
                 if (socketChannel == null) continue;
                 RequestProcess requestProcess = new RequestProcess(service);
                 readRequestThreadPool.submit(new ReadRequest(socketChannel, requestProcess));
-            } catch (IOException exception) {
-                System.out.println("Ошибка");
+            } catch (NullPointerException | IOException | RejectedExecutionException exception) {
+                MainServer.logger.warn("Ошибка, канал пуст");
             }
         }
-
     }
 
     /**
      * Running two commands on the server
      * save and exit
      *
-     * @param dataManager - class with commands
-     * @param exit        - command exit
      * @return
      */
     private static Thread getUserInputHandler(AtomicBoolean exit) {
@@ -127,14 +126,5 @@ public class MainServer {
             }
         });
     }
-
-    /**
-     * save collection to file
-     *
-     * @param filename - file in which server load collection, s - default
-     */
-    private static void save(DataManager dataManager, String filename) {
-        dataManager.save(filename);
-    }
-
 }
+
