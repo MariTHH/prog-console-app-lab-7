@@ -1,5 +1,6 @@
 package client.commands.available.commands;
 
+import client.MainClient;
 import client.commands.Command;
 import client.commands.CommandManager;
 import server.PersonCollection;
@@ -40,7 +41,7 @@ public class ExecuteScript extends Command {
     @Override
     public void execute(String[] args) {
         if (args.length != 2) {
-            System.out.println("Вы неправильно ввели команду");
+            MainClient.logger.warn("Вы неправильно ввели команду");
         } else {
             flag = true;
             filePaths.add((String) getArgument());
@@ -53,7 +54,7 @@ public class ExecuteScript extends Command {
                 }
 
             } catch (FileNotFoundException e) {
-                System.out.println("Файл не найден");
+                MainClient.logger.warn("Файл не найден");
             }
 
             for (int i = 0; i < commandList.size(); i++) {
@@ -69,7 +70,7 @@ public class ExecuteScript extends Command {
                 else if (commandAndArgument.length == 2)
                     argument = commandAndArgument[1];
                 else {
-                    System.out.println("Введите комманду и аргумент, если нужно");
+                    MainClient.logger.info("Введите комманду и аргумент, если нужно");
                     return;
                 }
                 String[] arrayList = new String[]{"add", "add_if_min", "add_if_max", "update"};
@@ -78,7 +79,7 @@ public class ExecuteScript extends Command {
                     if (commandMap.containsKey(commandArg) && !specialCommand) {
                         if (commandArg.equals("execute_script")) {
                             if (filePaths.contains(commandAndArgument[1])) {
-                                System.out.println("Файл содержит рекурсию!!");
+                                MainClient.logger.warn("Файл содержит рекурсию!!");
                                 continue;
                             }
                         }
@@ -95,7 +96,7 @@ public class ExecuteScript extends Command {
                     }
 
                 } catch (NullPointerException | IndexOutOfBoundsException e) {
-                    System.out.println("Неверные данные в скрипте, персонаж не создан");
+                    MainClient.logger.error("Неверные данные в скрипте, персонаж не создан");
                 }
             }
             filePaths.remove(getArgument());

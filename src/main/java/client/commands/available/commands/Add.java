@@ -29,16 +29,16 @@ public class Add extends Command {
     @Override
     public void execute(String[] args) {
         if (args.length > 1) {
-            System.out.println("Вы неправильно ввели команду");
+            MainClient.logger.warn("Вы неправильно ввели команду");
         } else if (ExecuteScript.getFlag()) {
             Person newPerson = ClientManager.createPersonFromScript(ExecuteScript.getPersonList());
             Request<Person> request = new Request<>(getName(), newPerson, null);
             CommandResult result = requestManager.sendRequest(request);
             if (result.status) {
-                System.out.println((result.message));
-                System.out.println("Ваш персонаж теперь в коллекции");
+                MainClient.logger.info((result.message));
+                MainClient.logger.info("Ваш персонаж теперь в коллекции");
             } else {
-                System.out.println("Ошибка");
+                System.out.println("Ошибка добавления");
             }
         } else {
             Scanner sc = new Scanner(System.in);
@@ -49,7 +49,7 @@ public class Add extends Command {
                 System.out.println((result.message));
                 System.out.println("Ваш персонаж теперь в коллекции");
             } else {
-                System.out.println("Ошибка");
+                System.out.println("Ошибка добавления");
             }
         }
     }
