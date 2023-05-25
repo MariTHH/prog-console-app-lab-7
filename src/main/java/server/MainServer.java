@@ -84,7 +84,6 @@ public class MainServer {
         while (!exit.get()) {
             try {
                 SocketChannel socketChannel = serverSocketChannel.accept();
-                if (socketChannel == null) continue;
                 RequestProcess requestProcess = new RequestProcess(service);
                 readRequestThreadPool.submit(new ReadRequest(socketChannel, requestProcess));
             } catch (NullPointerException | IOException | RejectedExecutionException exception) {
