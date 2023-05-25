@@ -100,27 +100,29 @@ public class MainServer {
      * @param exit        - command exit
      * @return
      */
-    private static Thread getUserInputHandler(DataManager dataManager, AtomicBoolean exit) {
+    private static Thread getUserInputHandler(AtomicBoolean exit) {
         return new Thread(() -> {
             Scanner scanner = new Scanner(System.in);
-
             while (true) {
+
                 if (scanner.hasNextLine()) {
                     String serverCommand = scanner.nextLine();
-                    if (serverCommand.contains("save")) {
-                        serverCommand = serverCommand.split(" ")[1];
-                        save(dataManager, String.valueOf(serverCommand));
-                        return;
-                    }
-                    if (serverCommand.equals("exit")) {
-                        exit.set(true);
-                        System.exit(0);
-                        return;
+                    Exit exit1 = new Exit();
+
+                    if (serverCommand.equals(exit1.getName())) {
+                        try {
+                            readRequestThreadPool.shutdown();
+                            throw new RejectedExecutionException();
+                        } catch (RejectedExecutionException e) {
+                            MainServer.logger.error("Все пока");
+                            exit.set(true);
+                            return;
+                        }
+
                     } else {
-                        System.out.println("Такой команды нет");
+                        MainServer.logger.info("Такой команды нет");
+                        return;
                     }
-                } else {
-                    exit.set(true);
                 }
             }
         });

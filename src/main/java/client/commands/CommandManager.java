@@ -32,7 +32,7 @@ public class CommandManager {
         initializeCommand(new Show(requestManager));
         initializeCommand(new Clear(requestManager));
         initializeCommand(new Info(requestManager));
-        initializeCommand(new Exit(requestManager));
+        initializeCommand(new Exit());
         initializeCommand(new Help(requestManager));
         initializeCommand(new CountGreaterThanEyeColor(requestManager));
         initializeCommand(new FilterGreaterThanLocation(requestManager));
