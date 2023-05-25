@@ -2,6 +2,7 @@ package server.request.process;
 
 import common.network.CommandResult;
 import common.network.Request;
+import server.MainServer;
 import server.Service;
 
 import java.nio.file.AccessDeniedException;
@@ -29,7 +30,7 @@ public class RequestProcess {
                 try {
                     return commandResultFuture.get();
                 } catch (InterruptedException | ExecutionException exception) {
-                    System.out.println("Ошибка");
+                    MainServer.logger.error("Результат запроса не найден");
                 }
             }
         }
@@ -55,9 +56,9 @@ public class RequestProcess {
         public CommandResult call() throws AccessDeniedException, SQLException {
             CommandResult result = service.executeCommand(request);
             if (result.status)
-                System.out.println("Команда выполнена успешно");
+                MainServer.logger.info("Команда выполнена успешно");
             else
-                System.out.println("Команда выполнена неуспешно");
+                MainServer.logger.info("Команда выполнена неуспешно");
             return result;
         }
     }

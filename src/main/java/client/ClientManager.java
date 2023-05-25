@@ -53,11 +53,11 @@ public class ClientManager {
                         new Location(Double.parseDouble(data.get(3)), Float.parseFloat(data.get(4)), data.get(5)));
 
             } else {
-                System.out.println("Неправильно введены данные");
+                MainClient.logger.warn("Неправильно введены данные");
                 return null;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Неправильно введены данные");
+            MainClient.logger.error("Неправильно введены данные");
             return null;
         }
 

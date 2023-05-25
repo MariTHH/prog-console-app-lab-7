@@ -317,6 +317,7 @@ public class DBManager {
         Color hairColor = person.getHairColor();
         Location location = person.getLocation();
 
+
         int num_param =1;
         statement.setString(num_param++, person.getName());
         statement.setLong(num_param++, coordinates.getX());
@@ -346,8 +347,8 @@ public class DBManager {
         try {
             PreparedStatement statement = connection.prepareStatement(SQL_ADD_PERSON,
                     Statement.RETURN_GENERATED_KEYS);
-            int i = prepareStatement(statement, person, true);
-            statement.setString(i, owner);
+            int num_param = prepareStatement(statement, person, true);
+            statement.setString(num_param, owner);
             int affectedRows = statement.executeUpdate();
             if (affectedRows == 0)
                 throw new SQLException("Нет измененных строк");
