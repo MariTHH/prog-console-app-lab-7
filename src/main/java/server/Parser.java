@@ -28,7 +28,7 @@ public class Parser {
             marshaller.marshal(collection, bufferedOutputStream);
             bufferedOutputStream.close();
         } catch (IOException | JAXBException e) {
-            System.out.println("Права к файлу ограничены");
+            MainServer.logger.warn("Права к файлу ограничены");
         }
     }
 
@@ -46,7 +46,7 @@ public class Parser {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Указанный файл не найден");
         } catch (JAXBException e) {
-            System.out.println("С файлом что-то не так, либо он пуст. В коллекции ничего нет");
+            MainServer.logger.error("С файлом что-то не так, либо он пуст. В коллекции ничего нет");
             return new PersonCollection();
         } catch (NullPointerException e) {
             throw new RuntimeException();
@@ -60,10 +60,10 @@ public class Parser {
      */
     public static String[] getLoginData() {
         try {
-            Scanner scanner = new Scanner(new FileReader("biba"));
+            Scanner scanner = new Scanner(new FileReader("secret"));
             return new String[]{scanner.nextLine(), scanner.nextLine()};
         } catch (FileNotFoundException e) {
-            System.out.println("Файл не найден");
+            MainServer.logger.warn("Файл не найден");
         }
         return null;
     }

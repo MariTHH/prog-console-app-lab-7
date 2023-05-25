@@ -72,12 +72,12 @@ public class RequestManager {
                 CommandResult result = (CommandResult) objectReceive.readObject();
 
                 if (attempt != 0) {
-                    System.out.println("Подключение установлено");
+                    MainClient.logger.info("Подключение установлено");
                 }
                 attempt = max_attempts;
                 return result;
             } catch (IOException | ClassNotFoundException e) {
-                System.out.println("Не удалось подключиться к серверу. Пробуем еще.");
+                MainClient.logger.info("Не удалось подключиться к серверу. Пробуем еще.");
                 attempt++;
                 try {
                     Thread.sleep(6000);

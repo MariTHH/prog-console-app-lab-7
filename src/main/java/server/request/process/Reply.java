@@ -1,6 +1,7 @@
 package server.request.process;
 
 import common.network.CommandResult;
+import server.MainServer;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -28,7 +29,7 @@ public class Reply implements Runnable {
             objectOutputStream.writeObject(result);
             objectOutputStream.flush();
         } catch (IOException exception) {
-            System.out.println("Ошибка");
+            MainServer.logger.error("Ответ на запрос отсутствует");
         }
     }
 }

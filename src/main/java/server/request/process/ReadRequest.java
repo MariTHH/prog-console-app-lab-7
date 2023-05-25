@@ -2,6 +2,7 @@ package server.request.process;
 
 import common.network.CommandResult;
 import common.network.Request;
+import server.MainServer;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -36,7 +37,7 @@ public class ReadRequest implements Runnable {
             CommandResult result = requestProcess.processRequest(request, requestThread);
             requestThread1.submit(new Reply(socketChannel, result));
         } catch (IOException | ClassNotFoundException exception) {
-            System.out.println("Ошибка");
+            MainServer.logger.error("Запрос не выполнен");
         }
     }
 }

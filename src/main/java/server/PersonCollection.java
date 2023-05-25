@@ -291,7 +291,7 @@ public class PersonCollection extends DataManager {
                 }
             }
         } catch (NumberFormatException e) {
-            System.out.println("Вы неправильно ввели данные");
+            MainServer.logger.warn("Вы неправильно ввели данные");
         }
         return new CommandResult(true, "Выведен персонаж с большей координатой локации");
     }
@@ -310,7 +310,7 @@ public class PersonCollection extends DataManager {
                 uniq.remove(X);
             }
         }
-        System.out.println("Выведены все уникальные значения");
+        MainServer.logger.info("Выведены все уникальные значения");
         return new CommandResult(true, String.valueOf(uniq));
     }
 
@@ -373,9 +373,9 @@ public class PersonCollection extends DataManager {
                 return new CommandResult(false, "Вы не можете изменить данного персонажа");
             }
         } catch (NumberFormatException e) {
-            System.out.println("ID введен неверно");
+            MainServer.logger.warn("ID введен неверно");
         } catch (AccessDeniedException | SQLException e) {
-            System.out.println("Ошибка с бд");
+            MainServer.logger.warn("Ошибка с бд");
         }
         return new CommandResult(true, message);
     }
@@ -410,34 +410,18 @@ public class PersonCollection extends DataManager {
             String countColor = String.valueOf(count);
             return new CommandResult(true, countColor);
         } catch (NumberFormatException e) {
-            System.out.println("Цвет введен неверно");
+            MainServer.logger.warn("Цвет введен неверно");
             return new CommandResult(false, "Цвет введен неверно");
         }
     }
 
-    /**
-     * Save collection
-     */
-    public void save(String filename) {
-        saveCollection(filename);
-    }
-
-    /**
-     * Parsing a collection in xml
-     *
-     * @param filename - the name of the file in which we save the collection, "s" by default
-     */
-    public void saveCollection(String filename) {
-        parser.convertToXML(this, filename);
-        System.out.println("Коллекция сохранена");
-    }
 
     /**
      * Finish the app
      *
-     * @param request - command
+     * @param
      */
-    public CommandResult exit(Request<?> request) {
+    public CommandResult exit() {
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         atomicBoolean.set(true);
         return new CommandResult(true, "Удачи");
