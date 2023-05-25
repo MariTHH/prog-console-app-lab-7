@@ -84,10 +84,9 @@ public class DBManager {
     public void connectDB() {
         try {
             connection = DriverManager.getConnection(url, username, password);
-            System.out.println("Подключение к базе данных установлено.");
+            MainServer.logger.info("Подключение к базе данных установлено.");
         } catch (SQLException e) {
-            System.out.println("Не удалось выполнить подключение к базе данных.");
-            System.exit(-1);
+            MainServer.logger.warn("Не удалось выполнить подключение к базе данных.");
         }
     }
 
