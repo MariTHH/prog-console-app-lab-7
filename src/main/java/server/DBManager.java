@@ -124,6 +124,7 @@ public class DBManager {
             PreparedStatement statement = connection.prepareStatement(SQL_CREATE_USER);
             statement.executeUpdate();
             statement.close();
+            return false;
         }
         return true;
     }
